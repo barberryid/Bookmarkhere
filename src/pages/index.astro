@@ -1,0 +1,118 @@
+---
+import { ArrowRight, Check, Clock, Search } from "@lucide/astro";
+import BookmarkCard from "@components/BookmarkCard.astro";
+import Header from "@components/Header.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { bookmarks, groupedBookmarks } from "@lib/mockData";
+import { productConfig } from "@lib/config";
+
+const mockCards = bookmarks.slice(0, 5);
+---
+
+<BaseLayout title={productConfig.appName}>
+  <Header active="home" />
+
+  <main>
+    <section class="relative isolate overflow-hidden border-b border-[#dfe4d7] bg-[#eef3e8]">
+      <div class="absolute inset-0 -z-10 opacity-55" aria-hidden="true">
+        <div class="mx-auto grid max-w-6xl grid-cols-1 gap-3 px-4 py-8 sm:grid-cols-2 lg:grid-cols-3">
+          {mockCards.map((bookmark) => <BookmarkCard bookmark={bookmark} compact />)}
+        </div>
+      </div>
+      <div class="absolute inset-0 -z-10 bg-[#eef3e8]/80" aria-hidden="true"></div>
+
+      <div class="mx-auto flex min-h-[68vh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
+        <div class="max-w-2xl">
+          <p class="mb-4 inline-flex rounded-md border border-[#c5d1bf] bg-white/80 px-3 py-1 text-sm font-medium text-[#405147]">
+            Personal bookmark manager
+          </p>
+          <h1 class="text-5xl font-semibold tracking-normal text-[#17201b] sm:text-6xl">
+            {productConfig.appName}
+          </h1>
+          <p class="mt-5 max-w-xl text-xl leading-8 text-[#405147]">
+            Your bookmarks, cleanly organised. A fast, visual way to keep favourite websites easy to find.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href="/dashboard"
+              class="focus-ring inline-flex h-11 items-center gap-2 rounded-md bg-[#2f6f5e] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#285f51]"
+            >
+              Open My Bookmarks
+              <ArrowRight size={17} />
+            </a>
+            <a
+              href="#mockup"
+              class="focus-ring inline-flex h-11 items-center gap-2 rounded-md border border-[#c5d1bf] bg-white/85 px-5 text-sm font-semibold text-[#34443b] transition hover:border-[#9eb19a]"
+            >
+              <Search size={17} />
+              View Layout
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-b border-[#dfe4d7] bg-[#fbfcf7]">
+      <div class="mx-auto grid max-w-7xl gap-4 px-4 py-10 sm:grid-cols-3 sm:px-6 lg:px-8">
+        <div class="rounded-md border border-[#dfe5da] bg-white p-5">
+          <Check size={20} class="text-[#2f6f5e]" />
+          <h2 class="mt-3 text-base font-semibold">Folders first</h2>
+          <p class="mt-2 text-sm leading-6 text-[#66746a]">Categories stay visible, ordered, and easy to scan.</p>
+        </div>
+        <div class="rounded-md border border-[#dfe5da] bg-white p-5">
+          <Search size={20} class="text-[#2f6f5e]" />
+          <h2 class="mt-3 text-base font-semibold">Search up top</h2>
+          <p class="mt-2 text-sm leading-6 text-[#66746a]">Find links by title, URL, description, or category.</p>
+        </div>
+        <div class="rounded-md border border-[#dfe5da] bg-white p-5">
+          <Clock size={20} class="text-[#2f6f5e]" />
+          <h2 class="mt-3 text-base font-semibold">Built for speed</h2>
+          <p class="mt-2 text-sm leading-6 text-[#66746a]">Compact cards keep 500 to 5,000 bookmarks manageable.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="mockup" class="bg-[#f7f8f3]">
+      <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-semibold tracking-normal">Bookmark Cards</h2>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#66746a]">A screenshot-style view built from the same compact components used in the dashboard.</p>
+          </div>
+          <a href="/dashboard" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-4 text-sm font-semibold text-[#34443b] hover:border-[#9eb19a]">
+            Open Dashboard
+            <ArrowRight size={16} />
+          </a>
+        </div>
+        <div class="grid gap-4 lg:grid-cols-2">
+          {groupedBookmarks.slice(0, 2).map(({ category, bookmarks }) => (
+            <div class="rounded-md border border-[#dfe5da] bg-[#fbfcf7] p-4">
+              <h3 class="mb-3 text-sm font-semibold text-[#405147]">{category.name}</h3>
+              <div class="grid gap-3">
+                {bookmarks.slice(0, 2).map((bookmark) => <BookmarkCard bookmark={bookmark} compact />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="border-y border-[#dfe4d7] bg-white">
+      <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-semibold tracking-normal">Built For Fast Bookmark Access</h2>
+        <div class="mt-5 grid gap-4 text-sm leading-6 text-[#526258] md:grid-cols-3">
+          <p>Import from Booky, keep folders, and skip duplicate URLs by default.</p>
+          <p>Export JSON or CSV backups so the data remains portable.</p>
+          <p>Start private now, with user IDs and subscription tables ready for a future paid beta.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-[#17201b] px-4 py-8 text-sm text-[#d7dfd3] sm:px-6 lg:px-8">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
+      <span>{productConfig.appName}</span>
+      <span>Private MVP, prepared for Cloudflare Pages and D1.</span>
+    </div>
+  </footer>
+</BaseLayout>

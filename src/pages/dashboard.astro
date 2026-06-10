@@ -1,0 +1,136 @@
+---
+import { FileUp, FolderPlus, Plus } from "@lucide/astro";
+import BookmarkForm from "@components/BookmarkForm.astro";
+import CategoryForm from "@components/CategoryForm.astro";
+import CategorySection from "@components/CategorySection.astro";
+import EmptyState from "@components/EmptyState.astro";
+import ExportButton from "@components/ExportButton.astro";
+import Header from "@components/Header.astro";
+import ImportPanel from "@components/ImportPanel.astro";
+import SearchBar from "@components/SearchBar.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { bookmarks, categories, groupedBookmarks } from "@lib/mockData";
+
+const totalBookmarks = bookmarks.length;
+const totalCategories = categories.length;
+---
+
+<BaseLayout title="Dashboard">
+  <Header active="dashboard" />
+
+  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <section class="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-normal text-[#17201b]">My Bookmarks</h1>
+        <p class="mt-1 text-sm text-[#66746a]">
+          <span data-visible-count>{totalBookmarks}</span> visible of {totalBookmarks} bookmarks across {totalCategories} categories.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-[#2f6f5e] px-3 text-sm font-semibold text-white shadow-sm hover:bg-[#285f51]">
+          <Plus size={16} />
+          Add Bookmark
+        </button>
+        <button type="button" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] shadow-sm hover:border-[#9eb19a]">
+          <FolderPlus size={16} />
+          Add Category
+        </button>
+        <a href="/import" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] shadow-sm hover:border-[#9eb19a]">
+          <FileUp size={16} />
+          Import
+        </a>
+        <ExportButton format="json" />
+        <ExportButton format="csv" />
+      </div>
+    </section>
+
+    <section class="sticky top-0 z-20 -mx-4 border-y border-[#dfe4d7] bg-[#f7f8f3]/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <SearchBar />
+    </section>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div class="grid gap-5">
+        {
+          groupedBookmarks.length ? (
+            groupedBookmarks.map(({ category, bookmarks }) => (
+              <CategorySection category={category} bookmarks={bookmarks} />
+            ))
+          ) : (
+            <EmptyState />
+          )
+        }
+        <div data-search-empty class="hidden">
+          <EmptyState />
+        </div>
+      </div>
+
+      <aside class="grid content-start gap-5">
+        <BookmarkForm />
+        <CategoryForm />
+        <ImportPanel />
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const searchInput = document.querySelector("#bookmark-search");
+    const visibleCount = document.querySelector("[data-visible-count]");
+    const noResults = document.querySelector("[data-search-empty]");
+    const sections = Array.from(document.querySelectorAll("[data-category-section]"));
+
+    function applySearch(rawValue: string) {
+      const query = rawValue.trim().toLowerCase();
+      let visibleBookmarks = 0;
+
+      for (const section of sections) {
+        const cards = Array.from(section.querySelectorAll("[data-bookmark-card]"));
+        const emptyState = section.querySelector("[data-category-empty]");
+        let sectionMatches = 0;
+
+        for (const card of cards) {
+          const matches = !query || card.getAttribute("data-search")?.includes(query);
+          card.classList.toggle("hidden", !matches);
+          if (matches) sectionMatches += 1;
+        }
+
+        visibleBookmarks += sectionMatches;
+
+        if (query) {
+          section.classList.toggle("hidden", sectionMatches === 0);
+          emptyState?.classList.add("hidden");
+        } else {
+          section.classList.remove("hidden");
+          emptyState?.classList.toggle("hidden", cards.length > 0);
+        }
+      }
+
+      if (visibleCount) {
+        visibleCount.textContent = String(visibleBookmarks);
+      }
+      noResults?.classList.toggle("hidden", !query || visibleBookmarks > 0);
+    }
+
+    if (searchInput instanceof HTMLInputElement) {
+      const initialQuery = new URLSearchParams(window.location.search).get("search") ?? "";
+      searchInput.value = initialQuery;
+      applySearch(initialQuery);
+
+      searchInput.form?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const nextUrl = new URL(window.location.href);
+        if (searchInput.value.trim()) {
+          nextUrl.searchParams.set("search", searchInput.value.trim());
+        } else {
+          nextUrl.searchParams.delete("search");
+        }
+        window.history.replaceState({}, "", nextUrl);
+        applySearch(searchInput.value);
+      });
+
+      searchInput.addEventListener("input", () => {
+        applySearch(searchInput.value);
+      });
+    }
+  </script>
+</BaseLayout>

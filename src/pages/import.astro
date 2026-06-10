@@ -1,0 +1,17 @@
+---
+import { ArrowLeft } from "@lucide/astro";
+import Header from "@components/Header.astro";
+import ImportPanel from "@components/ImportPanel.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Import">
+  <Header active="dashboard" />
+  <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <a href="/dashboard" class="focus-ring mb-6 inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] hover:border-[#9eb19a]">
+      <ArrowLeft size={16} />
+      Dashboard
+    </a>
+    <ImportPanel />
+  </main>
+</BaseLayout>

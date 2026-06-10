@@ -1,0 +1,18 @@
+---
+import { Download } from "@lucide/astro";
+
+type Props = {
+  format?: "json" | "csv";
+};
+
+const { format = "json" } = Astro.props;
+const label = format === "json" ? "Export JSON" : "Export CSV";
+---
+
+<a
+  href={`/api/export/${format}`}
+  class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] shadow-sm transition hover:border-[#9eb19a] hover:bg-[#f6f9f2]"
+>
+  <Download size={16} />
+  {label}
+</a>

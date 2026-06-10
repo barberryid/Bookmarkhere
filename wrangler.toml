@@ -1,0 +1,13 @@
+name = "linkshelf"
+compatibility_date = "2026-06-10"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "linkshelf"
+database_id = "replace-with-cloudflare-d1-database-id"
+migrations_dir = "migrations"
+
+[[kv_namespaces]]
+binding = "SESSION"
+id = "replace-with-cloudflare-kv-namespace-id"

@@ -1,0 +1,25 @@
+---
+import { Trash2, TriangleAlert, X } from "@lucide/astro";
+---
+
+<div class="rounded-md border border-[#ead1cc] bg-[#fffaf8] p-4 shadow-sm">
+  <div class="flex items-start gap-3">
+    <span class="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[#faece8] text-[#9b4e47]">
+      <TriangleAlert size={18} />
+    </span>
+    <div class="min-w-0 flex-1">
+      <h2 class="text-base font-semibold text-[#17201b]">Confirm Delete</h2>
+      <p class="mt-1 text-sm leading-6 text-[#66746a]">Deleting a category will move its bookmarks to Uncategorised in the working version.</p>
+      <div class="mt-3 flex gap-2">
+        <button type="button" class="focus-ring inline-flex h-9 items-center gap-2 rounded-md bg-[#9b4e47] px-3 text-sm font-semibold text-white hover:bg-[#833d37]">
+          <Trash2 size={15} />
+          Delete
+        </button>
+        <button type="button" class="focus-ring inline-flex h-9 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] hover:bg-[#f6f9f2]">
+          <X size={15} />
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,34 @@
+---
+import { Search, X } from "@lucide/astro";
+
+type Props = {
+  value?: string;
+  placeholder?: string;
+};
+
+const { value = "", placeholder = "Search title, URL, description, or category" } = Astro.props;
+---
+
+<form class="relative w-full" role="search">
+  <label for="bookmark-search" class="sr-only">Search bookmarks</label>
+  <Search class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#627166]" size={20} />
+  <input
+    id="bookmark-search"
+    name="search"
+    value={value}
+    placeholder={placeholder}
+    class="focus-ring h-13 w-full rounded-md border border-[#cfd8ca] bg-white pl-12 pr-12 text-base shadow-sm transition placeholder:text-[#7b887e] focus:border-[#2f6f5e]"
+    autocomplete="off"
+  />
+  {
+    value && (
+      <a
+        href="/dashboard"
+        class="focus-ring absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md text-[#627166] hover:bg-[#edf2e9] hover:text-[#17201b]"
+        aria-label="Clear search"
+      >
+        <X size={17} />
+      </a>
+    )
+  }
+</form>

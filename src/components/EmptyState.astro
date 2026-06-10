@@ -1,0 +1,21 @@
+---
+import { SearchX } from "@lucide/astro";
+
+type Props = {
+  title?: string;
+  message?: string;
+  compact?: boolean;
+};
+
+const {
+  title = "No bookmarks found.",
+  message = "Try a different search term or add a new bookmark.",
+  compact = false,
+} = Astro.props;
+---
+
+<div class:list={["rounded-md border border-dashed border-[#cbd6c7] bg-white text-center", compact ? "p-5" : "p-8"]}>
+  <SearchX size={compact ? 20 : 26} class="mx-auto text-[#7c8a7f]" />
+  <h2 class="mt-3 text-sm font-semibold text-[#17201b]">{title}</h2>
+  <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-[#66746a]">{message}</p>
+</div>

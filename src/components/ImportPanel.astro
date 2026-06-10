@@ -1,0 +1,41 @@
+---
+import { FileUp, Upload } from "@lucide/astro";
+---
+
+<section class="rounded-md border border-[#dfe5da] bg-white p-4 shadow-sm">
+  <div class="mb-4 flex items-start justify-between gap-3">
+    <div>
+      <h2 class="text-base font-semibold text-[#17201b]">Booky Import</h2>
+      <p class="mt-1 text-sm leading-6 text-[#66746a]">Import folders and bookmarks from a Booky export.</p>
+    </div>
+    <span class="grid h-9 w-9 place-items-center rounded-md bg-[#eef4e8] text-[#2f6f5e]">
+      <FileUp size={18} />
+    </span>
+  </div>
+
+  <label class="focus-ring flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed border-[#b8c7b3] bg-[#fbfcf7] px-4 py-6 text-center text-sm text-[#526258] hover:border-[#2f6f5e]">
+    <Upload size={20} class="text-[#2f6f5e]" />
+    <span class="font-medium text-[#17201b]">Choose export file</span>
+    <span>HTML, JSON, or CSV</span>
+    <input type="file" class="sr-only" />
+  </label>
+
+  <div class="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+    <div class="rounded-md bg-[#f3f6ef] p-3">
+      <span class="block text-xs text-[#66746a]">Found</span>
+      <strong class="text-[#17201b]">0</strong>
+    </div>
+    <div class="rounded-md bg-[#f3f6ef] p-3">
+      <span class="block text-xs text-[#66746a]">Imported</span>
+      <strong class="text-[#17201b]">0</strong>
+    </div>
+    <div class="rounded-md bg-[#f3f6ef] p-3">
+      <span class="block text-xs text-[#66746a]">Duplicates</span>
+      <strong class="text-[#17201b]">0</strong>
+    </div>
+    <div class="rounded-md bg-[#f3f6ef] p-3">
+      <span class="block text-xs text-[#66746a]">Categories</span>
+      <strong class="text-[#17201b]">0</strong>
+    </div>
+  </div>
+</section>

@@ -1,5 +1,10 @@
 import type { APIRoute } from "astro";
-import { bookmarks, categories } from "@lib/mockData";
+import { getPrivateUserId } from "@lib/auth";
+import { listBookmarks } from "@lib/bookmarks";
+import { listCategories } from "@lib/categories";
+import { getDb } from "@lib/db";
+
+export const prerender = false;
 
 const header = [
   "category",
@@ -12,23 +17,29 @@ const header = [
   "updated_at",
 ];
 
-export const GET: APIRoute = async () => {
-  const rows = bookmarks.map((bookmark) => {
-    const category = categories.find((item) => item.id === bookmark.categoryId);
+export const GET: APIRoute = async ({ locals }) => {
+  const db = getDb();
+  const userId = getPrivateUserId();
 
-    return [
-      category?.name ?? "Uncategorised",
-      bookmark.title,
-      bookmark.url,
-      bookmark.description ?? "",
-      String(bookmark.sortOrder),
-      bookmark.isFavourite ? "true" : "false",
-      bookmark.createdAt,
-      bookmark.updatedAt,
-    ];
-  });
+  const [categories, bookmarks] = await Promise.all([
+    listCategories(db, userId),
+    listBookmarks(db, userId),
+  ]);
 
-  const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+  const categoryNames = new Map(categories.map((category) => [category.id, category.name]));
+
+  const rows = bookmarks.map((bookmark) => [
+    categoryNames.get(bookmark.categoryId) ?? "Uncategorised",
+    bookmark.title,
+    bookmark.url,
+    bookmark.description ?? "",
+    String(bookmark.sortOrder),
+    bookmark.isFavourite ? "true" : "false",
+    bookmark.createdAt,
+    bookmark.updatedAt,
+  ]);
+
+  const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
 
   return new Response(csv, {
     headers: {

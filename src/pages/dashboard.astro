@@ -1,5 +1,5 @@
 ---
-import { FileUp, FolderPlus, Plus } from "@lucide/astro";
+import { FileUp, FolderPlus, Plus, Save, X } from "@lucide/astro";
 import BookmarkForm from "@components/BookmarkForm.astro";
 import CategoryForm from "@components/CategoryForm.astro";
 import CategorySection from "@components/CategorySection.astro";
@@ -9,7 +9,27 @@ import Header from "@components/Header.astro";
 import ImportPanel from "@components/ImportPanel.astro";
 import SearchBar from "@components/SearchBar.astro";
 import BaseLayout from "@layouts/BaseLayout.astro";
-import { bookmarks, categories, groupedBookmarks } from "@lib/mockData";
+import { getPrivateUserId } from "@lib/auth";
+import { listBookmarks } from "@lib/bookmarks";
+import { listCategories } from "@lib/categories";
+import { getDb } from "@lib/db";
+
+export const prerender = false;
+
+const db = getDb();
+const userId = getPrivateUserId();
+
+const [categories, bookmarks] = await Promise.all([
+  listCategories(db, userId),
+  listBookmarks(db, userId),
+]);
+
+const groupedBookmarks = categories.map((category) => ({
+  category,
+  bookmarks: bookmarks
+    .filter((bookmark) => bookmark.categoryId === category.id)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title)),
+}));
 
 const totalBookmarks = bookmarks.length;
 const totalCategories = categories.length;
@@ -50,14 +70,14 @@ const totalCategories = categories.length;
     </section>
 
     <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-      <div class="grid gap-5">
+      <div class="grid content-start gap-5">
         {
           groupedBookmarks.length ? (
             groupedBookmarks.map(({ category, bookmarks }) => (
               <CategorySection category={category} bookmarks={bookmarks} />
             ))
           ) : (
-            <EmptyState />
+            <EmptyState title="No bookmarks yet." message="Add a bookmark or import your Booky export to get started." />
           )
         }
         <div data-search-empty class="hidden">
@@ -66,14 +86,67 @@ const totalCategories = categories.length;
       </div>
 
       <aside class="grid content-start gap-5">
-        <BookmarkForm />
+        <BookmarkForm categories={categories} />
         <CategoryForm />
         <ImportPanel />
       </aside>
     </div>
   </main>
 
+  <dialog
+    id="edit-bookmark-dialog"
+    class="m-auto w-[min(92vw,480px)] rounded-md border border-[#dfe5da] bg-white p-0 shadow-xl backdrop:bg-[#17201b]/40"
+  >
+    <form id="edit-bookmark-form" class="p-5">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <h2 class="text-base font-semibold text-[#17201b]">Edit Bookmark</h2>
+        <button type="button" data-close-dialog class="focus-ring grid h-8 w-8 place-items-center rounded-md text-[#627166] hover:bg-[#edf2e9] hover:text-[#17201b]" aria-label="Close">
+          <X size={17} />
+        </button>
+      </div>
+
+      <input type="hidden" name="id" />
+      <div class="grid gap-3">
+        <label class="grid gap-1 text-sm font-medium text-[#34443b]">
+          Title
+          <input name="title" required class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" autocomplete="off" />
+        </label>
+        <label class="grid gap-1 text-sm font-medium text-[#34443b]">
+          URL
+          <input name="url" required inputmode="url" class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" autocomplete="off" spellcheck="false" />
+        </label>
+        <label class="grid gap-1 text-sm font-medium text-[#34443b]">
+          Category
+          <select name="category_id" class="focus-ring h-10 rounded-md border border-[#cfd8ca] bg-white px-3 font-normal">
+            {categories.map((category) => <option value={category.id}>{category.name}</option>)}
+          </select>
+        </label>
+        <label class="grid gap-1 text-sm font-medium text-[#34443b]">
+          Description
+          <textarea name="description" class="focus-ring min-h-20 rounded-md border border-[#cfd8ca] px-3 py-2 font-normal" placeholder="Optional note"></textarea>
+        </label>
+        <label class="flex items-center gap-2 text-sm font-medium text-[#34443b]">
+          <input type="checkbox" name="is_favourite" class="focus-ring h-4 w-4 rounded border-[#cfd8ca] accent-[#2f6f5e]" />
+          Favourite
+        </label>
+      </div>
+
+      <p class="mt-3 hidden rounded-md border border-[#f0c8a2] bg-[#fff8ef] px-3 py-2 text-sm text-[#7a4a19]" data-form-error></p>
+
+      <div class="mt-4 flex justify-end gap-2">
+        <button type="button" data-close-dialog class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-4 text-sm font-semibold text-[#34443b] hover:bg-[#f6f9f2]">
+          Cancel
+        </button>
+        <button type="submit" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-[#2f6f5e] px-4 text-sm font-semibold text-white hover:bg-[#285f51]">
+          <Save size={15} />
+          Save
+        </button>
+      </div>
+    </form>
+  </dialog>
+
   <script>
+    // ---- search -----------------------------------------------------------
     const searchInput = document.querySelector("#bookmark-search");
     const visibleCount = document.querySelector("[data-visible-count]");
     const noResults = document.querySelector("[data-search-empty]");
@@ -144,15 +217,190 @@ const totalCategories = categories.length;
       });
     }
 
+    // ---- helpers ----------------------------------------------------------
+    async function api(path: string, method: string, body?: unknown): Promise<{ ok: boolean; data: any }> {
+      const response = await fetch(path, {
+        method,
+        headers: body ? { "content-type": "application/json" } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const data = await response.json().catch(() => ({}));
+      return { ok: response.ok, data };
+    }
+
+    function showFormError(form: HTMLElement, message: string) {
+      const region = form.querySelector("[data-form-error]");
+      if (!region) return;
+      region.textContent = message;
+      region.classList.remove("hidden");
+    }
+
+    function hideFormError(form: HTMLElement) {
+      form.querySelector("[data-form-error]")?.classList.add("hidden");
+    }
+
+    // ---- open/focus sidebar forms ----------------------------------------
+    const addBookmarkForm = document.querySelector<HTMLFormElement>("#add-bookmark-form");
+
     for (const trigger of document.querySelectorAll<HTMLElement>("[data-open-form]")) {
       trigger.addEventListener("click", () => {
         const form = document.querySelector(trigger.dataset.openForm ?? "");
         const input = document.querySelector(trigger.dataset.focusInput ?? "");
+        if (trigger.dataset.preselectCategory && addBookmarkForm) {
+          const select = addBookmarkForm.querySelector<HTMLSelectElement>('[name="category_id"]');
+          if (select) select.value = trigger.dataset.preselectCategory;
+        }
         form?.scrollIntoView({ behavior: "smooth", block: "start" });
         if (input instanceof HTMLElement) {
           input.focus({ preventScroll: true });
         }
       });
+    }
+
+    // ---- add bookmark -----------------------------------------------------
+    addBookmarkForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      hideFormError(addBookmarkForm);
+      const fields = new FormData(addBookmarkForm);
+      const { ok, data } = await api("/api/bookmarks", "POST", {
+        title: fields.get("title"),
+        url: fields.get("url"),
+        categoryId: fields.get("category_id"),
+        description: fields.get("description") || undefined,
+      });
+      if (ok) {
+        window.location.reload();
+      } else {
+        showFormError(addBookmarkForm, data.error ?? "Could not save the bookmark.");
+      }
+    });
+
+    // ---- add category -----------------------------------------------------
+    const addCategoryForm = document.querySelector<HTMLFormElement>("#add-category-form");
+    addCategoryForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      hideFormError(addCategoryForm);
+      const fields = new FormData(addCategoryForm);
+      const { ok, data } = await api("/api/categories", "POST", { name: fields.get("name") });
+      if (ok) {
+        window.location.reload();
+      } else {
+        showFormError(addCategoryForm, data.error ?? "Could not create the category.");
+      }
+    });
+
+    // ---- bookmark card actions -------------------------------------------
+    const dialog = document.querySelector<HTMLDialogElement>("#edit-bookmark-dialog");
+    const editForm = document.querySelector<HTMLFormElement>("#edit-bookmark-form");
+
+    function field(form: HTMLFormElement, name: string) {
+      return form.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(`[name="${name}"]`)!;
+    }
+
+    for (const card of document.querySelectorAll<HTMLElement>("[data-bookmark-card]")) {
+      const id = card.dataset.id;
+      if (!id) continue;
+
+      card.querySelector("[data-edit-bookmark]")?.addEventListener("click", () => {
+        if (!dialog || !editForm) return;
+        hideFormError(editForm);
+        field(editForm, "id").value = id;
+        field(editForm, "title").value = card.dataset.title ?? "";
+        field(editForm, "url").value = card.dataset.url ?? "";
+        field(editForm, "category_id").value = card.dataset.categoryId ?? "";
+        field(editForm, "description").value = card.dataset.description ?? "";
+        (field(editForm, "is_favourite") as HTMLInputElement).checked = card.dataset.favourite === "1";
+        dialog.showModal();
+      });
+
+      card.querySelector("[data-delete-bookmark]")?.addEventListener("click", async () => {
+        if (!window.confirm(`Delete "${card.dataset.title}"?`)) return;
+        const { ok, data } = await api(`/api/bookmarks/${id}`, "DELETE");
+        if (ok) {
+          window.location.reload();
+        } else {
+          window.alert(data.error ?? "Could not delete the bookmark.");
+        }
+      });
+
+      for (const move of card.querySelectorAll<HTMLElement>("[data-move-bookmark]")) {
+        move.addEventListener("click", async () => {
+          const { ok, data } = await api("/api/bookmarks/reorder", "POST", {
+            id,
+            direction: move.dataset.moveBookmark,
+          });
+          if (ok) {
+            window.location.reload();
+          } else {
+            window.alert(data.error ?? "Could not move the bookmark.");
+          }
+        });
+      }
+    }
+
+    // ---- edit dialog ------------------------------------------------------
+    for (const close of document.querySelectorAll("[data-close-dialog]")) {
+      close.addEventListener("click", () => dialog?.close());
+    }
+
+    editForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      hideFormError(editForm);
+      const fields = new FormData(editForm);
+      const { ok, data } = await api(`/api/bookmarks/${fields.get("id")}`, "PUT", {
+        title: fields.get("title"),
+        url: fields.get("url"),
+        categoryId: fields.get("category_id"),
+        description: fields.get("description") || undefined,
+        isFavourite: fields.get("is_favourite") === "on",
+      });
+      if (ok) {
+        window.location.reload();
+      } else {
+        showFormError(editForm, data.error ?? "Could not save the bookmark.");
+      }
+    });
+
+    // ---- category actions -------------------------------------------------
+    for (const section of document.querySelectorAll<HTMLElement>("[data-category-section]")) {
+      const id = section.dataset.categoryId;
+      if (!id) continue;
+
+      section.querySelector("[data-rename-category]")?.addEventListener("click", async () => {
+        const name = window.prompt("Rename category", section.dataset.categoryName ?? "");
+        if (!name?.trim() || name.trim() === section.dataset.categoryName) return;
+        const { ok, data } = await api(`/api/categories/${id}`, "PUT", { name });
+        if (ok) {
+          window.location.reload();
+        } else {
+          window.alert(data.error ?? "Could not rename the category.");
+        }
+      });
+
+      section.querySelector("[data-delete-category]")?.addEventListener("click", async () => {
+        const message = `Delete "${section.dataset.categoryName}"? Its bookmarks will move to Uncategorised.`;
+        if (!window.confirm(message)) return;
+        const { ok, data } = await api(`/api/categories/${id}`, "DELETE");
+        if (ok) {
+          window.location.reload();
+        } else {
+          window.alert(data.error ?? "Could not delete the category.");
+        }
+      });
+
+      for (const move of section.querySelectorAll<HTMLElement>("[data-move-category]")) {
+        move.addEventListener("click", async () => {
+          const { ok, data } = await api("/api/categories/reorder", "POST", {
+            id,
+            direction: move.dataset.moveCategory,
+          });
+          if (ok) {
+            window.location.reload();
+          } else {
+            window.alert(data.error ?? "Could not move the category.");
+          }
+        });
+      }
     }
   </script>
 </BaseLayout>

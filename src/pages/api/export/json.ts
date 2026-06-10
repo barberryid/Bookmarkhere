@@ -1,11 +1,23 @@
 import type { APIRoute } from "astro";
-import { bookmarks, categories, seedUser } from "@lib/mockData";
+import { getPrivateUserId } from "@lib/auth";
+import { listBookmarks } from "@lib/bookmarks";
+import { listCategories } from "@lib/categories";
+import { getDb } from "@lib/db";
 
-export const GET: APIRoute = async () => {
+export const prerender = false;
+
+export const GET: APIRoute = async ({ locals }) => {
+  const db = getDb();
+  const userId = getPrivateUserId();
+
+  const [categories, bookmarks] = await Promise.all([
+    listCategories(db, userId),
+    listBookmarks(db, userId),
+  ]);
+
   const payload = {
     exportedAt: new Date().toISOString(),
-    source: "LinkShelf static prototype",
-    user: seedUser,
+    source: "LinkShelf",
     categories,
     bookmarks,
   };

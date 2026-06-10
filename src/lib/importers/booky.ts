@@ -1,3 +1,5 @@
+import { parseNetscapeBookmarks } from "./htmlBookmarks";
+
 export type ImportedBookmark = {
   title: string;
   url: string;
@@ -11,6 +13,11 @@ export type ImportParseResult = {
   errors: string[];
 };
 
+/**
+ * Parses a Booky.io export. The real Booky export is Netscape bookmark HTML
+ * (verified against an actual export file); a JSON fallback is kept for
+ * hand-rolled backup files.
+ */
 export function parseBookyExport(raw: string): ImportParseResult {
   const trimmed = raw.trim();
 
@@ -22,12 +29,14 @@ export function parseBookyExport(raw: string): ImportParseResult {
     return parseBookyJson(trimmed);
   }
 
+  if (/<!DOCTYPE NETSCAPE-Bookmark/i.test(trimmed) || /<DT><A\s/i.test(trimmed)) {
+    return parseNetscapeBookmarks(trimmed);
+  }
+
   return {
     source: "booky",
     items: [],
-    errors: [
-      "Booky parser placeholder: inspect the real export file before finalizing HTML or CSV support.",
-    ],
+    errors: ["Unrecognised file format. Upload the HTML file exported from Booky.io."],
   };
 }
 

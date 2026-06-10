@@ -1,13 +1,20 @@
-export type D1DatabaseBinding = {
-  prepare: (query: string) => unknown;
-};
+import { env } from "cloudflare:workers";
 
 export const privateSeedUserId = "user_private_seed";
+export const uncategorisedCategoryId = "cat_uncategorised";
 
-export function requireDatabase(env: { DB?: D1DatabaseBinding }) {
-  if (!env.DB) {
+export function getDb(): D1Database {
+  const db = env.DB;
+  if (!db) {
     throw new Error("Cloudflare D1 binding DB is not configured.");
   }
+  return db;
+}
 
-  return env.DB;
+export function newId(prefix: string): string {
+  return `${prefix}_${crypto.randomUUID()}`;
+}
+
+export function nowIso(): string {
+  return new Date().toISOString();
 }

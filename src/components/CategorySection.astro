@@ -2,7 +2,7 @@
 import { ChevronDown, ChevronUp, Folder, Pencil, Plus, Trash2 } from "@lucide/astro";
 import BookmarkCard from "@components/BookmarkCard.astro";
 import EmptyState from "@components/EmptyState.astro";
-import type { Bookmark, Category } from "@lib/mockData";
+import type { Bookmark, Category } from "@lib/types";
 
 type Props = {
   category: Category;
@@ -12,7 +12,12 @@ type Props = {
 const { category, bookmarks } = Astro.props;
 ---
 
-<section data-category-section data-category-name={category.name} class="rounded-md border border-[#dfe5da] bg-[#fbfcf7] p-4 shadow-sm">
+<section
+  data-category-section
+  data-category-id={category.id}
+  data-category-name={category.name}
+  class="rounded-md border border-[#dfe5da] bg-[#fbfcf7] p-4 shadow-sm"
+>
   <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
     <div class="flex min-w-0 items-center gap-2">
       <span class="grid h-8 w-8 place-items-center rounded-md bg-[#e9f0e3] text-[#2f6f5e]">
@@ -25,19 +30,19 @@ const { category, bookmarks } = Astro.props;
     </div>
 
     <div class="flex items-center gap-1">
-      <button type="button" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Move category up">
+      <button type="button" data-move-category="up" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Move category up">
         <ChevronUp size={15} />
       </button>
-      <button type="button" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Move category down">
+      <button type="button" data-move-category="down" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Move category down">
         <ChevronDown size={15} />
       </button>
-      <button type="button" data-open-form="#add-bookmark-form" data-focus-input="#bookmark-title-input" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Add bookmark to category">
+      <button type="button" data-open-form="#add-bookmark-form" data-focus-input="#bookmark-title-input" data-preselect-category={category.id} class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Add bookmark to category">
         <Plus size={15} />
       </button>
-      <button type="button" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Rename category">
+      <button type="button" data-rename-category class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Rename category">
         <Pencil size={14} />
       </button>
-      <button type="button" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#efd8d4] bg-white text-[#9b4e47] hover:border-[#e9aaa0] hover:bg-[#fff7f4]" title="Delete category">
+      <button type="button" data-delete-category class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#efd8d4] bg-white text-[#9b4e47] hover:border-[#e9aaa0] hover:bg-[#fff7f4]" title="Delete category">
         <Trash2 size={14} />
       </button>
     </div>

@@ -1,6 +1,12 @@
 ---
-import { Link, Plus, TriangleAlert } from "@lucide/astro";
-import { categories } from "@lib/mockData";
+import { Link, Plus } from "@lucide/astro";
+import type { Category } from "@lib/types";
+
+type Props = {
+  categories: Category[];
+};
+
+const { categories } = Astro.props;
 ---
 
 <form id="add-bookmark-form" class="scroll-mt-24 rounded-md border border-[#dfe5da] bg-white p-4 shadow-sm">
@@ -17,11 +23,11 @@ import { categories } from "@lib/mockData";
   <div class="grid gap-3">
     <label class="grid gap-1 text-sm font-medium text-[#34443b]">
       Title
-      <input id="bookmark-title-input" name="title" class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" placeholder="Website name" autocomplete="off" />
+      <input id="bookmark-title-input" name="title" required class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" placeholder="Website name" autocomplete="off" />
     </label>
     <label class="grid gap-1 text-sm font-medium text-[#34443b]">
       URL
-      <input name="url" inputmode="url" class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" placeholder="https://example.com" autocomplete="off" spellcheck="false" />
+      <input name="url" required inputmode="url" class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" placeholder="https://example.com" autocomplete="off" spellcheck="false" />
     </label>
     <label class="grid gap-1 text-sm font-medium text-[#34443b]">
       Category
@@ -35,16 +41,12 @@ import { categories } from "@lib/mockData";
     </label>
   </div>
 
-  <div class="mt-4 flex items-center justify-between gap-3">
-    <p class="text-xs text-[#66746a]">Duplicate URL check ready.</p>
-    <button type="button" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-[#2f6f5e] px-4 text-sm font-semibold text-white hover:bg-[#285f51]">
+  <div class="mt-4 flex items-center justify-end gap-3">
+    <button type="submit" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-[#2f6f5e] px-4 text-sm font-semibold text-white hover:bg-[#285f51]">
       <Plus size={16} />
       Add
     </button>
   </div>
 
-  <div class="mt-3 hidden rounded-md border border-[#f0c8a2] bg-[#fff8ef] px-3 py-2 text-sm text-[#7a4a19]" data-duplicate-warning>
-    <TriangleAlert size={14} class="mr-1 inline" />
-    This URL is already saved.
-  </div>
+  <p class="mt-3 hidden rounded-md border border-[#f0c8a2] bg-[#fff8ef] px-3 py-2 text-sm text-[#7a4a19]" data-form-error></p>
 </form>

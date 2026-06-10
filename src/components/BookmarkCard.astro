@@ -1,6 +1,6 @@
 ---
-import { GripVertical, Pencil, Star, Trash2 } from "@lucide/astro";
-import type { Bookmark } from "@lib/mockData";
+import { ChevronDown, ChevronUp, Pencil, Star, Trash2 } from "@lucide/astro";
+import type { Bookmark } from "@lib/types";
 import { domainFromUrl } from "@lib/urlNormalize";
 
 type Props = {
@@ -19,6 +19,12 @@ const searchableText = [bookmark.title, bookmark.url, bookmark.description ?? ""
 
 <article
   data-bookmark-card
+  data-id={bookmark.id}
+  data-title={bookmark.title}
+  data-url={bookmark.url}
+  data-category-id={bookmark.categoryId}
+  data-description={bookmark.description ?? ""}
+  data-favourite={bookmark.isFavourite ? "1" : "0"}
   data-search={searchableText}
   class="group relative min-h-[104px] rounded-md border border-[#dce3d8] bg-white p-3 shadow-[0_1px_0_rgba(23,32,27,0.03)] transition hover:-translate-y-0.5 hover:border-[#b8c7b3] hover:shadow-md"
 >
@@ -60,14 +66,17 @@ const searchableText = [bookmark.title, bookmark.url, bookmark.description ?? ""
     </a>
 
     <div class="flex shrink-0 flex-col items-center gap-1 opacity-100 sm:opacity-0 sm:transition sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-      <button type="button" class="focus-ring grid h-7 w-7 place-items-center rounded-md text-[#748176] hover:bg-[#edf2e9] hover:text-[#17201b]" title="Reorder bookmark">
-        <GripVertical size={15} />
+      <button type="button" data-move-bookmark="up" class="focus-ring grid h-6 w-7 place-items-center rounded-md text-[#748176] hover:bg-[#edf2e9] hover:text-[#17201b]" title="Move bookmark up">
+        <ChevronUp size={14} />
       </button>
-      <button type="button" class="focus-ring grid h-7 w-7 place-items-center rounded-md text-[#748176] hover:bg-[#edf2e9] hover:text-[#17201b]" title="Edit bookmark">
-        <Pencil size={14} />
+      <button type="button" data-move-bookmark="down" class="focus-ring grid h-6 w-7 place-items-center rounded-md text-[#748176] hover:bg-[#edf2e9] hover:text-[#17201b]" title="Move bookmark down">
+        <ChevronDown size={14} />
       </button>
-      <button type="button" class="focus-ring grid h-7 w-7 place-items-center rounded-md text-[#9b4e47] hover:bg-[#faece8] hover:text-[#7f342e]" title="Delete bookmark">
-        <Trash2 size={14} />
+      <button type="button" data-edit-bookmark class="focus-ring grid h-6 w-7 place-items-center rounded-md text-[#748176] hover:bg-[#edf2e9] hover:text-[#17201b]" title="Edit bookmark">
+        <Pencil size={13} />
+      </button>
+      <button type="button" data-delete-bookmark class="focus-ring grid h-6 w-7 place-items-center rounded-md text-[#9b4e47] hover:bg-[#faece8] hover:text-[#7f342e]" title="Delete bookmark">
+        <Trash2 size={13} />
       </button>
     </div>
   </div>

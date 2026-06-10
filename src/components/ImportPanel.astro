@@ -2,11 +2,11 @@
 import { FileUp, Upload } from "@lucide/astro";
 ---
 
-<section class="rounded-md border border-[#dfe5da] bg-white p-4 shadow-sm">
+<section data-import-panel class="rounded-md border border-[#dfe5da] bg-white p-4 shadow-sm">
   <div class="mb-4 flex items-start justify-between gap-3">
     <div>
       <h2 class="text-base font-semibold text-[#17201b]">Booky Import</h2>
-      <p class="mt-1 text-sm leading-6 text-[#66746a]">Import folders and bookmarks from a Booky export.</p>
+      <p class="mt-1 text-sm leading-6 text-[#66746a]">Import folders and bookmarks from a Booky export. Duplicate URLs are skipped.</p>
     </div>
     <span class="grid h-9 w-9 place-items-center rounded-md bg-[#eef4e8] text-[#2f6f5e]">
       <FileUp size={18} />
@@ -15,27 +15,91 @@ import { FileUp, Upload } from "@lucide/astro";
 
   <label class="focus-ring flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed border-[#b8c7b3] bg-[#fbfcf7] px-4 py-6 text-center text-sm text-[#526258] hover:border-[#2f6f5e]">
     <Upload size={20} class="text-[#2f6f5e]" />
-    <span class="font-medium text-[#17201b]">Choose export file</span>
-    <span>HTML, JSON, or CSV</span>
-    <input type="file" name="file" accept=".html,.json,.csv,text/html,application/json,text/csv" class="sr-only" />
+    <span class="font-medium text-[#17201b]" data-import-label>Choose export file</span>
+    <span>HTML or JSON</span>
+    <input type="file" name="file" accept=".html,.json,text/html,application/json" class="sr-only" data-import-file />
   </label>
+
+  <p class="mt-3 hidden rounded-md border border-[#cfd8ca] bg-[#f6f9f2] px-3 py-2 text-sm text-[#34443b]" data-import-status></p>
 
   <div class="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
     <div class="rounded-md bg-[#f3f6ef] p-3">
       <span class="block text-xs text-[#66746a]">Found</span>
-      <strong class="text-[#17201b]">0</strong>
+      <strong class="text-[#17201b]" data-import-stat="found">0</strong>
     </div>
     <div class="rounded-md bg-[#f3f6ef] p-3">
       <span class="block text-xs text-[#66746a]">Imported</span>
-      <strong class="text-[#17201b]">0</strong>
+      <strong class="text-[#17201b]" data-import-stat="imported">0</strong>
     </div>
     <div class="rounded-md bg-[#f3f6ef] p-3">
       <span class="block text-xs text-[#66746a]">Duplicates</span>
-      <strong class="text-[#17201b]">0</strong>
+      <strong class="text-[#17201b]" data-import-stat="skippedDuplicates">0</strong>
     </div>
     <div class="rounded-md bg-[#f3f6ef] p-3">
       <span class="block text-xs text-[#66746a]">Categories</span>
-      <strong class="text-[#17201b]">0</strong>
+      <strong class="text-[#17201b]" data-import-stat="categoriesCreated">0</strong>
     </div>
   </div>
+
+  <div class="mt-3 hidden" data-import-done>
+    <a href="/dashboard" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-[#2f6f5e] px-4 text-sm font-semibold text-white hover:bg-[#285f51]">
+      View imported bookmarks
+    </a>
+  </div>
 </section>
+
+<script>
+  for (const panel of document.querySelectorAll("[data-import-panel]")) {
+    const fileInput = panel.querySelector<HTMLInputElement>("[data-import-file]");
+    const label = panel.querySelector("[data-import-label]");
+    const status = panel.querySelector("[data-import-status]");
+    const done = panel.querySelector("[data-import-done]");
+
+    function setStatus(message: string) {
+      if (!status) return;
+      status.textContent = message;
+      status.classList.remove("hidden");
+    }
+
+    fileInput?.addEventListener("change", async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+
+      if (label) label.textContent = file.name;
+      setStatus("Importing… this can take a moment for large files.");
+      fileInput.disabled = true;
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await fetch("/api/import/booky", { method: "POST", body: formData });
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          setStatus(data.error ?? "Import failed. Check the file and try again.");
+          return;
+        }
+
+        const summary = data.summary ?? {};
+        for (const stat of panel.querySelectorAll<HTMLElement>("[data-import-stat]")) {
+          const key = stat.dataset.importStat ?? "";
+          stat.textContent = String(summary[key] ?? 0);
+        }
+
+        const errorCount = summary.errors?.length ?? 0;
+        setStatus(
+          `Imported ${summary.imported} of ${summary.found} bookmarks` +
+            ` (${summary.skippedDuplicates} duplicates skipped, ${summary.categoriesCreated} categories created` +
+            (errorCount ? `, ${errorCount} items skipped with errors` : "") +
+            ").",
+        );
+        done?.classList.remove("hidden");
+      } catch {
+        setStatus("Import failed: could not reach the server.");
+      } finally {
+        fileInput.disabled = false;
+        fileInput.value = "";
+      }
+    });
+  }
+</script>

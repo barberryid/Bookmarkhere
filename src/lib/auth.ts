@@ -1,9 +1,10 @@
 import { privateSeedUserId } from "./db";
 
-export function getPrivateUserId() {
+/**
+ * Private MVP: every request acts as the seed user. Dashboard protection is
+ * handled at the deployment layer (Cloudflare Access) per the brief.
+ * Multi-user auth replaces this in a later milestone.
+ */
+export function getPrivateUserId(): string {
   return privateSeedUserId;
-}
-
-export function isDashboardProtectedByDeployment() {
-  return Boolean(import.meta.env.ADMIN_EMAIL || import.meta.env.ADMIN_PASSWORD);
 }

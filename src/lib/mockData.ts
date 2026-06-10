@@ -1,26 +1,8 @@
-export type Bookmark = {
-  id: string;
-  userId: string;
-  categoryId: string;
-  title: string;
-  url: string;
-  description?: string;
-  faviconUrl?: string;
-  sortOrder: number;
-  isFavourite: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
+// Mock data is used only by the static landing page mockup.
+// The dashboard and API read from Cloudflare D1.
+import type { Bookmark, Category } from "./types";
 
-export type Category = {
-  id: string;
-  userId: string;
-  name: string;
-  slug: string;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
-};
+export type { Bookmark, Category } from "./types";
 
 export const seedUser = {
   id: "user_private_seed",

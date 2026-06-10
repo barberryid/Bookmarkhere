@@ -1,9 +1,9 @@
 ---
-import { Check, Link, Plus } from "@lucide/astro";
+import { Link, Plus, TriangleAlert } from "@lucide/astro";
 import { categories } from "@lib/mockData";
 ---
 
-<form class="rounded-md border border-[#dfe5da] bg-white p-4 shadow-sm">
+<form id="add-bookmark-form" class="scroll-mt-24 rounded-md border border-[#dfe5da] bg-white p-4 shadow-sm">
   <div class="mb-4 flex items-center justify-between gap-3">
     <div>
       <h2 class="text-base font-semibold text-[#17201b]">Add Bookmark</h2>
@@ -17,21 +17,21 @@ import { categories } from "@lib/mockData";
   <div class="grid gap-3">
     <label class="grid gap-1 text-sm font-medium text-[#34443b]">
       Title
-      <input class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" placeholder="Website name" />
+      <input id="bookmark-title-input" name="title" class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" placeholder="Website name" autocomplete="off" />
     </label>
     <label class="grid gap-1 text-sm font-medium text-[#34443b]">
       URL
-      <input class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" placeholder="https://example.com" />
+      <input name="url" inputmode="url" class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" placeholder="https://example.com" autocomplete="off" spellcheck="false" />
     </label>
     <label class="grid gap-1 text-sm font-medium text-[#34443b]">
       Category
-      <select class="focus-ring h-10 rounded-md border border-[#cfd8ca] bg-white px-3 font-normal">
+      <select name="category_id" class="focus-ring h-10 rounded-md border border-[#cfd8ca] bg-white px-3 font-normal">
         {categories.map((category) => <option value={category.id}>{category.name}</option>)}
       </select>
     </label>
     <label class="grid gap-1 text-sm font-medium text-[#34443b]">
       Description
-      <textarea class="focus-ring min-h-20 rounded-md border border-[#cfd8ca] px-3 py-2 font-normal" placeholder="Optional note"></textarea>
+      <textarea name="description" class="focus-ring min-h-20 rounded-md border border-[#cfd8ca] px-3 py-2 font-normal" placeholder="Optional note"></textarea>
     </label>
   </div>
 
@@ -44,7 +44,7 @@ import { categories } from "@lib/mockData";
   </div>
 
   <div class="mt-3 hidden rounded-md border border-[#f0c8a2] bg-[#fff8ef] px-3 py-2 text-sm text-[#7a4a19]" data-duplicate-warning>
-    <Check size={14} class="mr-1 inline" />
+    <TriangleAlert size={14} class="mr-1 inline" />
     This URL is already saved.
   </div>
 </form>

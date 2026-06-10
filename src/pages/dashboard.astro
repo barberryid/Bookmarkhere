@@ -15,7 +15,7 @@ const totalBookmarks = bookmarks.length;
 const totalCategories = categories.length;
 ---
 
-<BaseLayout title="Dashboard">
+<BaseLayout title="Dashboard" noindex>
   <Header active="dashboard" />
 
   <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -28,11 +28,11 @@ const totalCategories = categories.length;
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button type="button" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-[#2f6f5e] px-3 text-sm font-semibold text-white shadow-sm hover:bg-[#285f51]">
+        <button type="button" data-open-form="#add-bookmark-form" data-focus-input="#bookmark-title-input" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-[#2f6f5e] px-3 text-sm font-semibold text-white shadow-sm hover:bg-[#285f51]">
           <Plus size={16} />
           Add Bookmark
         </button>
-        <button type="button" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] shadow-sm hover:border-[#9eb19a]">
+        <button type="button" data-open-form="#add-category-form" data-focus-input="#category-name-input" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] shadow-sm hover:border-[#9eb19a]">
           <FolderPlus size={16} />
           Add Category
         </button>
@@ -77,6 +77,7 @@ const totalCategories = categories.length;
     const searchInput = document.querySelector("#bookmark-search");
     const visibleCount = document.querySelector("[data-visible-count]");
     const noResults = document.querySelector("[data-search-empty]");
+    const clearButton = document.querySelector("[data-search-clear]");
     const sections = Array.from(document.querySelectorAll("[data-category-section]"));
 
     function applySearch(rawValue: string) {
@@ -109,6 +110,7 @@ const totalCategories = categories.length;
         visibleCount.textContent = String(visibleBookmarks);
       }
       noResults?.classList.toggle("hidden", !query || visibleBookmarks > 0);
+      clearButton?.classList.toggle("hidden", !rawValue);
     }
 
     if (searchInput instanceof HTMLInputElement) {
@@ -130,6 +132,26 @@ const totalCategories = categories.length;
 
       searchInput.addEventListener("input", () => {
         applySearch(searchInput.value);
+      });
+
+      clearButton?.addEventListener("click", () => {
+        searchInput.value = "";
+        const nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.delete("search");
+        window.history.replaceState({}, "", nextUrl);
+        applySearch("");
+        searchInput.focus();
+      });
+    }
+
+    for (const trigger of document.querySelectorAll<HTMLElement>("[data-open-form]")) {
+      trigger.addEventListener("click", () => {
+        const form = document.querySelector(trigger.dataset.openForm ?? "");
+        const input = document.querySelector(trigger.dataset.focusInput ?? "");
+        form?.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (input instanceof HTMLElement) {
+          input.focus({ preventScroll: true });
+        }
       });
     }
   </script>

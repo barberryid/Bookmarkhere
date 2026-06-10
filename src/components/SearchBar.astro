@@ -20,15 +20,15 @@ const { value = "", placeholder = "Search title, URL, description, or category" 
     class="focus-ring h-13 w-full rounded-md border border-[#cfd8ca] bg-white pl-12 pr-12 text-base shadow-sm transition placeholder:text-[#7b887e] focus:border-[#2f6f5e]"
     autocomplete="off"
   />
-  {
-    value && (
-      <a
-        href="/dashboard"
-        class="focus-ring absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md text-[#627166] hover:bg-[#edf2e9] hover:text-[#17201b]"
-        aria-label="Clear search"
-      >
-        <X size={17} />
-      </a>
-    )
-  }
+  <button
+    type="button"
+    data-search-clear
+    class:list={[
+      "focus-ring absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md text-[#627166] hover:bg-[#edf2e9] hover:text-[#17201b]",
+      !value && "hidden",
+    ]}
+    aria-label="Clear search"
+  >
+    <X size={17} />
+  </button>
 </form>

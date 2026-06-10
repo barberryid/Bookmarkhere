@@ -31,14 +31,14 @@ const { active = "home" } = Astro.props;
         <LayoutDashboard size={16} />
         Dashboard
       </a>
-      <button
-        type="button"
+      <a
+        href="/dashboard#add-bookmark-form"
         class="focus-ring hidden h-9 items-center gap-2 rounded-md border border-[#2f6f5e] bg-[#2f6f5e] px-3 text-sm font-medium text-white shadow-sm transition hover:bg-[#285f51] sm:inline-flex"
         title="Add bookmark"
       >
         <Plus size={16} />
         Add
-      </button>
+      </a>
     </nav>
   </div>
 </header>

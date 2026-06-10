@@ -17,7 +17,7 @@ import { FileUp, Upload } from "@lucide/astro";
     <Upload size={20} class="text-[#2f6f5e]" />
     <span class="font-medium text-[#17201b]">Choose export file</span>
     <span>HTML, JSON, or CSV</span>
-    <input type="file" class="sr-only" />
+    <input type="file" name="file" accept=".html,.json,.csv,text/html,application/json,text/csv" class="sr-only" />
   </label>
 
   <div class="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">

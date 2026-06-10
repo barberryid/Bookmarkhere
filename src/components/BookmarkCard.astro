@@ -1,5 +1,5 @@
 ---
-import { ArrowUpRight, GripVertical, Pencil, Star, Trash2 } from "@lucide/astro";
+import { GripVertical, Pencil, Star, Trash2 } from "@lucide/astro";
 import type { Bookmark } from "@lib/mockData";
 import { domainFromUrl } from "@lib/urlNormalize";
 
@@ -33,7 +33,15 @@ const searchableText = [bookmark.title, bookmark.url, bookmark.description ?? ""
       <span class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-md border border-[#dfe6da] bg-[#f3f6ef] text-sm font-semibold text-[#2f6f5e]">
         {
           bookmark.faviconUrl ? (
-            <img src={bookmark.faviconUrl} alt="" class="h-5 w-5" loading="lazy" decoding="async" />
+            <img
+              src={bookmark.faviconUrl}
+              alt=""
+              class="h-5 w-5"
+              loading="lazy"
+              decoding="async"
+              data-fallback={fallbackInitial}
+              onerror="this.replaceWith(this.dataset.fallback)"
+            />
           ) : (
             fallbackInitial
           )
@@ -63,13 +71,4 @@ const searchableText = [bookmark.title, bookmark.url, bookmark.description ?? ""
       </button>
     </div>
   </div>
-  <a
-    href={bookmark.url}
-    target="_blank"
-    rel="noopener noreferrer"
-    class="focus-ring absolute bottom-2 right-2 hidden h-7 w-7 place-items-center rounded-md text-[#627166] hover:bg-[#edf2e9] hover:text-[#17201b] lg:grid"
-    aria-label={`Open ${bookmark.title} in a new tab`}
-  >
-    <ArrowUpRight size={15} />
-  </a>
 </article>

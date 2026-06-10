@@ -14,7 +14,7 @@ const mockCards = bookmarks.slice(0, 5);
 
   <main>
     <section class="relative isolate overflow-hidden border-b border-[#dfe4d7] bg-[#eef3e8]">
-      <div class="absolute inset-0 -z-10 opacity-55" aria-hidden="true">
+      <div class="pointer-events-none absolute inset-0 -z-10 opacity-55" aria-hidden="true" inert>
         <div class="mx-auto grid max-w-6xl grid-cols-1 gap-3 px-4 py-8 sm:grid-cols-2 lg:grid-cols-3">
           {mockCards.map((bookmark) => <BookmarkCard bookmark={bookmark} compact />)}
         </div>
@@ -24,13 +24,13 @@ const mockCards = bookmarks.slice(0, 5);
       <div class="mx-auto flex min-h-[68vh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
         <div class="max-w-2xl">
           <p class="mb-4 inline-flex rounded-md border border-[#c5d1bf] bg-white/80 px-3 py-1 text-sm font-medium text-[#405147]">
-            Personal bookmark manager
+            {productConfig.appName} · Personal bookmark manager
           </p>
           <h1 class="text-5xl font-semibold tracking-normal text-[#17201b] sm:text-6xl">
-            {productConfig.appName}
+            Your bookmarks, cleanly organised.
           </h1>
           <p class="mt-5 max-w-xl text-xl leading-8 text-[#405147]">
-            Your bookmarks, cleanly organised. A fast, visual way to keep favourite websites easy to find.
+            A fast, visual bookmark manager for keeping your favourite websites easy to find.
           </p>
           <div class="mt-8 flex flex-wrap items-center gap-3">
             <a

@@ -31,7 +31,7 @@ const { category, bookmarks } = Astro.props;
       <button type="button" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Move category down">
         <ChevronDown size={15} />
       </button>
-      <button type="button" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Add bookmark to category">
+      <button type="button" data-open-form="#add-bookmark-form" data-focus-input="#bookmark-title-input" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Add bookmark to category">
         <Plus size={15} />
       </button>
       <button type="button" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Rename category">

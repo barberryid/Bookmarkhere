@@ -1,9 +1,5 @@
 # Cloudflare Workers config (the Astro 6 adapter no longer supports Pages).
-# Before the first remote deploy:
-#   1. npx wrangler d1 create linkshelf  -> paste database_id below
-#   2. npx wrangler kv namespace create SESSION -> paste id below
-#   3. npm run db:migrate:remote
-#   4. npm run deploy
+# Deploy: npm run deploy   Schema changes: npm run db:migrate:remote
 name = "linkshelf"
 main = "@astrojs/cloudflare/entrypoints/server"
 compatibility_date = "2026-06-10"
@@ -12,9 +8,9 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "linkshelf"
-database_id = "replace-with-cloudflare-d1-database-id"
+database_id = "8901c075-180f-4e7a-ade8-4fdefe124377"
 migrations_dir = "migrations"
 
 [[kv_namespaces]]
 binding = "SESSION"
-id = "replace-with-cloudflare-kv-namespace-id"
+id = "e2c9de6f4433470ea71333a695141a12"

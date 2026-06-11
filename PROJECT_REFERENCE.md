@@ -14,8 +14,10 @@ so the app deploys as a Cloudflare Worker with static assets instead.
 ## Websites
 
 - GitHub repository: `https://github.com/barberryid/Bookmarkhere.git`
-- Cloudflare Worker: Not deployed yet (see Deployment below)
+- Live site (Cloudflare Worker): `https://linkshelf.wheyisolate.workers.dev`
 - Production branch: `main`
+- Note: `bookmarkhere.pages.dev` is an unused Pages project (the Astro 6
+  adapter cannot run on Pages) and can be deleted in the dashboard.
 
 ## Git Bash
 
@@ -52,18 +54,24 @@ npm run dev                # dev server with local D1 (state in .wrangler/)
 npm run db:migrate:local   # apply migrations to the local D1 database
 ```
 
-## Deployment (first time)
+## Deployment
+
+First-time setup is done (D1 database `linkshelf`, KV namespace `SESSION`,
+migrations applied, Worker deployed). To publish changes:
 
 ```bash
-npx wrangler login
-npx wrangler d1 create linkshelf          # paste database_id into wrangler.toml
-npx wrangler kv namespace create SESSION  # paste id into wrangler.toml
-npm run db:migrate:remote                 # create tables + seed user in production
-npm run deploy                            # build and deploy the Worker
+npm run deploy             # build and deploy the Worker
+npm run db:migrate:remote  # only when there are new migration files
 ```
 
-After deploying, protect the dashboard with Cloudflare Access
-(Zero Trust > Access > Applications) before importing real bookmarks.
+## Dashboard Protection (Cloudflare Access)
+
+Protect the dashboard before importing real bookmarks:
+
+1. Cloudflare dashboard > Workers & Pages > linkshelf > Settings >
+   Domains & Routes > workers.dev > Enable Cloudflare Access
+2. In the generated Access application, set the policy to allow only
+   your email address.
 
 ## Booky Import
 

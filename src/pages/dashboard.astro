@@ -151,7 +151,25 @@ const totalCategories = categories.length;
     const visibleCount = document.querySelector("[data-visible-count]");
     const noResults = document.querySelector("[data-search-empty]");
     const clearButton = document.querySelector("[data-search-clear]");
-    const sections = Array.from(document.querySelectorAll("[data-category-section]"));
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-category-section]"));
+
+    // ---- collapsed categories (persisted across visits) -------------------
+    const COLLAPSE_KEY = "linkshelf-collapsed-categories";
+    let collapsedIds = new Set<string>();
+    try {
+      collapsedIds = new Set(JSON.parse(localStorage.getItem(COLLAPSE_KEY) ?? "[]"));
+    } catch {
+      // ignore corrupted storage
+    }
+
+    function applyCollapsed(section: HTMLElement, searching: boolean) {
+      // While searching, matching sections always show their bookmarks.
+      const isCollapsed = !searching && collapsedIds.has(section.dataset.categoryId ?? "");
+      section.querySelector("[data-category-body]")?.classList.toggle("hidden", isCollapsed);
+      const toggle = section.querySelector("[data-collapse-category]");
+      toggle?.setAttribute("aria-expanded", String(!isCollapsed));
+      toggle?.querySelector("svg")?.classList.toggle("-rotate-90", isCollapsed);
+    }
 
     function applySearch(rawValue: string) {
       const query = rawValue.trim().toLowerCase();
@@ -177,6 +195,7 @@ const totalCategories = categories.length;
           section.classList.remove("hidden");
           emptyState?.classList.toggle("hidden", cards.length > 0);
         }
+        applyCollapsed(section, Boolean(query));
       }
 
       if (visibleCount) {
@@ -365,6 +384,17 @@ const totalCategories = categories.length;
     for (const section of document.querySelectorAll<HTMLElement>("[data-category-section]")) {
       const id = section.dataset.categoryId;
       if (!id) continue;
+
+      section.querySelector("[data-collapse-category]")?.addEventListener("click", () => {
+        if (collapsedIds.has(id)) {
+          collapsedIds.delete(id);
+        } else {
+          collapsedIds.add(id);
+        }
+        localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...collapsedIds]));
+        const searching = searchInput instanceof HTMLInputElement && Boolean(searchInput.value.trim());
+        applyCollapsed(section, searching);
+      });
 
       section.querySelector("[data-rename-category]")?.addEventListener("click", async () => {
         const name = window.prompt("Rename category", section.dataset.categoryName ?? "");

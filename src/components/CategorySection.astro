@@ -1,5 +1,5 @@
 ---
-import { ChevronDown, ChevronUp, Folder, Pencil, Plus, Trash2 } from "@lucide/astro";
+import { ArrowDown, ArrowUp, ChevronDown, Folder, Pencil, Plus, Trash2 } from "@lucide/astro";
 import BookmarkCard from "@components/BookmarkCard.astro";
 import EmptyState from "@components/EmptyState.astro";
 import type { Bookmark, Category } from "@lib/types";
@@ -30,11 +30,14 @@ const { category, bookmarks } = Astro.props;
     </div>
 
     <div class="flex items-center gap-1">
+      <button type="button" data-collapse-category aria-expanded="true" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Collapse or expand category">
+        <ChevronDown size={15} class="transition-transform" />
+      </button>
       <button type="button" data-move-category="up" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Move category up">
-        <ChevronUp size={15} />
+        <ArrowUp size={14} />
       </button>
       <button type="button" data-move-category="down" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Move category down">
-        <ChevronDown size={15} />
+        <ArrowDown size={14} />
       </button>
       <button type="button" data-open-form="#add-bookmark-form" data-focus-input="#bookmark-title-input" data-preselect-category={category.id} class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Add bookmark to category">
         <Plus size={15} />
@@ -48,18 +51,20 @@ const { category, bookmarks } = Astro.props;
     </div>
   </div>
 
-  {
-    bookmarks.length ? (
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {bookmarks.map((bookmark) => <BookmarkCard bookmark={bookmark} searchText={category.name} />)}
-      </div>
-      <div data-category-empty class="hidden">
-        <EmptyState title="No bookmarks here yet." message="Add a bookmark or move one into this category." compact />
-      </div>
-    ) : (
-      <div data-category-empty>
-        <EmptyState title="No bookmarks here yet." message="Add a bookmark or move one into this category." compact />
-      </div>
-    )
-  }
+  <div data-category-body>
+    {
+      bookmarks.length ? (
+        <div class="grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {bookmarks.map((bookmark) => <BookmarkCard bookmark={bookmark} searchText={category.name} />)}
+        </div>
+        <div data-category-empty class="hidden">
+          <EmptyState title="No bookmarks here yet." message="Add a bookmark or move one into this category." compact />
+        </div>
+      ) : (
+        <div data-category-empty>
+          <EmptyState title="No bookmarks here yet." message="Add a bookmark or move one into this category." compact />
+        </div>
+      )
+    }
+  </div>
 </section>

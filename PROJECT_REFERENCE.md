@@ -18,7 +18,7 @@ Note: Astro 6's adapter is Workers-only — Cloudflare Pages cannot run this app
 - Production URL: `https://linkshelf.wheyisolate.workers.dev`
 - Production branch: `main`
 - workers.dev subdomain: `wheyisolate`
-- Old Pages URL: `https://bookmarkhere.pages.dev/` — defunct; can be deleted (404s, never served this app)
+- Old Pages URL: `https://bookmarkhere.pages.dev/` — deleted 2026-06-11 (never served this app); the only Cloudflare app is the linkshelf Worker
 
 ## Cloudflare Access (dashboard protection)
 

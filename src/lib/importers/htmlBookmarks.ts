@@ -15,13 +15,21 @@ export function parseNetscapeBookmarks(raw: string): ImportParseResult {
   const stack: string[] = [];
   let pendingFolder: string | null = null;
 
-  const token = /<DT><H3[^>]*>([\s\S]*?)<\/H3>|<DL[^>]*>|<\/DL>|<DT><A\s+([^>]*)>([\s\S]*?)<\/A>/gi;
+  const token = /<DT><H3[^>]*>([\s\S]*?)<\/H3>|<DL[^>]*>|<\/DL>|<DT><A\s+([^>]*)>([\s\S]*?)<\/A>|<DD>([\s\S]*?)(?=<DT>|<DL|<\/DL>|$)/gi;
 
   for (const match of raw.matchAll(token)) {
     const tag = match[0];
 
     if (tag.toUpperCase().startsWith("<DT><H3")) {
       pendingFolder = decodeEntities(match[1]).trim();
+      continue;
+    }
+
+    if (tag.toUpperCase().startsWith("<DD")) {
+      // A <DD> line is the description of the bookmark right before it.
+      const description = decodeEntities(match[4].replace(/<[^>]*>/g, "")).trim();
+      const last = items[items.length - 1];
+      if (last && description) last.description = description;
       continue;
     }
 

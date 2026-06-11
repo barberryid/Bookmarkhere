@@ -42,6 +42,16 @@ export function isValidHttpUrl(input: string): boolean {
   }
 }
 
+/**
+ * Some Booky exports contain corrupted HREFs with title text glued in front
+ * of the real address ("SomeTitlehttps://example.com/..."). Recover the URL
+ * from the first http(s):// onwards, or return null if there is none.
+ */
+export function recoverEmbeddedUrl(input: string): string | null {
+  const match = input.match(/https?:\/\/\S+/);
+  return match ? match[0] : null;
+}
+
 export function domainFromUrl(input: string): string {
   try {
     return new URL(normalizeUrl(input)).hostname.replace(/^www\./, "");

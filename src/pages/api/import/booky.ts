@@ -5,7 +5,7 @@ import { ensureCategory } from "@lib/categories";
 import { getDb, newId, nowIso } from "@lib/db";
 import { parseBookyExport } from "@lib/importers/booky";
 import type { Category, ImportSummary } from "@lib/types";
-import { domainFromUrl, faviconUrlForDomain, normalizeUrl, normalizeUrlKey } from "@lib/urlNormalize";
+import { domainFromUrl, faviconUrlForDomain, normalizeUrl, normalizeUrlKey, recoverEmbeddedUrl } from "@lib/urlNormalize";
 
 export const prerender = false;
 
@@ -62,8 +62,18 @@ export const POST: APIRoute = async ({ locals, request }) => {
       let url: string;
       let normalizedKey: string;
       try {
-        url = normalizeUrl(item.url);
-        normalizedKey = normalizeUrlKey(item.url);
+        const usable = (() => {
+          try {
+            normalizeUrl(item.url);
+            return item.url;
+          } catch {
+            const recovered = recoverEmbeddedUrl(item.url);
+            if (!recovered) throw new Error("invalid");
+            return recovered;
+          }
+        })();
+        url = normalizeUrl(usable);
+        normalizedKey = normalizeUrlKey(usable);
       } catch {
         summary.errors.push(`Skipped invalid URL: ${item.url.slice(0, 120)}`);
         continue;

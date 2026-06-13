@@ -9,3 +9,6 @@ npm-debug.log*
 *.local
 ~$*
 .astro-dev*.log
+
+# Local D1 data backups (personal bookmark data)
+backups/

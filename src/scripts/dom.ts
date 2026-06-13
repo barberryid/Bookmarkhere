@@ -174,6 +174,11 @@ export function refreshSection(section: HTMLElement): void {
   const empty = $("[data-category-empty]", section);
   grid.classList.toggle("hidden", total === 0);
   empty?.classList.toggle("hidden", total > 0);
+
+  // The Uncategorised fallback bucket hides itself entirely while empty.
+  if (section.hasAttribute("data-hide-when-empty")) {
+    section.classList.toggle("hidden", total === 0);
+  }
 }
 
 /** Refresh the favourites strip visibility (hidden when empty or searching). */
@@ -200,7 +205,18 @@ export function refreshTotals(): void {
   const totalCount = $("[data-total-count]");
   if (totalCount) totalCount.textContent = String(mainCards.length);
   const categoryTotal = $("[data-category-total]");
-  if (categoryTotal) categoryTotal.textContent = String(allSections().length);
+  if (categoryTotal) {
+    // Exclude the empty hide-when-empty bucket (Uncategorised) regardless of
+    // search state, so the count reflects the user's real categories.
+    const real = allSections().filter(
+      (section) =>
+        !(
+          section.hasAttribute("data-hide-when-empty") &&
+          (gridFor(section)?.children.length ?? 0) === 0
+        ),
+    );
+    categoryTotal.textContent = String(real.length);
+  }
 }
 
 /**

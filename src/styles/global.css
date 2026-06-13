@@ -207,8 +207,18 @@ mark.search-hit {
   font-variant-numeric: tabular-nums;
 }
 .rail-link-nested {
-  padding-left: 1rem;
+  padding-left: 1.5rem;
   font-size: 0.8125rem;
+}
+.rail-caret {
+  display: inline-block;
+  width: 0.75rem;
+  font-size: 0.7rem;
+  line-height: 1;
+  transition: transform 150ms ease;
+}
+.rail-collection.rail-collapsed .rail-caret {
+  transform: rotate(-90deg);
 }
 
 kbd {

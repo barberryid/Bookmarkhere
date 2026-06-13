@@ -3,12 +3,40 @@ import { expandSection } from "./collapse";
 
 let observer: IntersectionObserver | null = null;
 
+const RAIL_COLLAPSE_KEY = "linkshelf-rail-collapsed";
+let collapsed = new Set<string>();
+try {
+  collapsed = new Set(JSON.parse(localStorage.getItem(RAIL_COLLAPSE_KEY) ?? "[]"));
+} catch {
+  // ignore corrupted storage
+}
+
+function persist(): void {
+  try {
+    localStorage.setItem(RAIL_COLLAPSE_KEY, JSON.stringify([...collapsed]));
+  } catch {
+    // storage unavailable
+  }
+}
+
 function railEl(): HTMLElement | null {
   return $("[data-category-rail]");
 }
 
 function sectionCount(section: HTMLElement): number {
   return gridFor(section)?.children.length ?? 0;
+}
+
+/** Hide the category links under collapsed collections; rotate their carets. */
+function applyCollapsed(): void {
+  const rail = railEl();
+  if (!rail) return;
+  for (const link of $$("[data-rail-parent]", rail)) {
+    link.classList.toggle("hidden", collapsed.has(link.dataset.railParent ?? ""));
+  }
+  for (const header of $$("[data-rail-collection]", rail)) {
+    header.classList.toggle("rail-collapsed", collapsed.has(header.dataset.railCollection ?? ""));
+  }
 }
 
 /** Rebuild the rail links from the current collections + sections. */
@@ -31,32 +59,36 @@ function build(): void {
     );
   }
 
-  // Walk top-level children of the sections container in document order so
-  // collection groups and any ungrouped sections keep their on-page order.
   const container = $("[data-sections-container]");
   if (!container) return;
 
   for (const node of Array.from(container.children) as HTMLElement[]) {
     if (node.matches("[data-collection]")) {
       const name = node.dataset.collectionName ?? "";
-      const slug = node.id.replace(/^collection-/, "");
+      const key = node.id.replace(/^collection-/, "");
       const sections = $$("[data-category-section]", node);
       const total = sections.reduce((n, s) => n + sectionCount(s), 0);
-      list.append(
-        collectionHeader(`collection-${slug}`, name, total, () => {
-          node.scrollIntoView({ behavior: "smooth", block: "start" });
-        }),
-      );
+      list.append(collectionHeader(key, name, total));
       for (const section of sections) {
+        if (section.classList.contains("hidden")) continue;
         const full = section.dataset.categoryName ?? "";
         list.append(
-          categoryLink(`rail-${section.dataset.categoryId}`, splitCollection(full).short, sectionCount(section), true, () => {
-            expandSection(section);
-            section.scrollIntoView({ behavior: "smooth", block: "start" });
-          }),
+          categoryLink(
+            `rail-${section.dataset.categoryId}`,
+            splitCollection(full).short,
+            sectionCount(section),
+            true,
+            () => {
+              expandSection(section);
+              section.scrollIntoView({ behavior: "smooth", block: "start" });
+            },
+            key,
+          ),
         );
       }
     } else if (node.matches("[data-category-section]")) {
+      // Ungrouped category — skip the empty Uncategorised bucket.
+      if (node.classList.contains("hidden")) continue;
       const full = node.dataset.categoryName ?? "";
       list.append(
         categoryLink(`rail-${node.dataset.categoryId}`, full, sectionCount(node), false, () => {
@@ -67,30 +99,39 @@ function build(): void {
     }
   }
 
+  applyCollapsed();
   observe();
 }
 
-function collectionHeader(key: string, name: string, count: number, onClick: () => void): HTMLElement {
-  const link = document.createElement("a");
-  link.href = "#";
-  link.className =
-    "mt-2 flex items-center justify-between gap-2 rounded-md px-2 py-1 text-xs font-semibold uppercase tracking-wide text-ink-faint hover:text-ink";
-  link.dataset.railKey = key;
+/** Collection header in the rail — clicking it collapses its category list. */
+function collectionHeader(key: string, name: string, count: number): HTMLElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.dataset.railCollection = key;
+  button.className =
+    "rail-collection focus-ring mt-2 flex w-full items-center gap-1.5 rounded-md px-1.5 py-1 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint hover:text-ink";
+
+  const caret = document.createElement("span");
+  caret.className = "rail-caret";
+  caret.setAttribute("aria-hidden", "true");
+  caret.textContent = "▾";
 
   const nameEl = document.createElement("span");
-  nameEl.className = "rail-name";
+  nameEl.className = "rail-name flex-1";
   nameEl.textContent = name;
 
   const countEl = document.createElement("span");
   countEl.className = "rail-count";
   countEl.textContent = String(count);
 
-  link.append(nameEl, countEl);
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
-    onClick();
+  button.append(caret, nameEl, countEl);
+  button.addEventListener("click", () => {
+    if (collapsed.has(key)) collapsed.delete(key);
+    else collapsed.add(key);
+    persist();
+    applyCollapsed();
   });
-  return link;
+  return button;
 }
 
 function categoryLink(
@@ -99,11 +140,13 @@ function categoryLink(
   count: number,
   indented: boolean,
   onClick: () => void,
+  parentKey?: string,
 ): HTMLElement {
   const link = document.createElement("a");
   link.href = "#";
   link.className = indented ? "rail-link rail-link-nested" : "rail-link";
   link.dataset.railKey = key;
+  if (parentKey) link.dataset.railParent = parentKey;
 
   const nameEl = document.createElement("span");
   nameEl.className = "rail-name";

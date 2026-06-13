@@ -61,7 +61,11 @@ const bookmarkData = ordered.map((bookmark) => ({
 const bookmarkJson = JSON.stringify(bookmarkData).replace(/</g, "\\u003c");
 
 const totalBookmarks = bookmarks.length;
-const totalCategories = categories.length;
+// The empty Uncategorised fallback bucket is hidden, so don't count it.
+const totalCategories = categories.filter(
+  (category) =>
+    !(category.id === uncategorisedCategoryId && (countByCategory.get(category.id) ?? 0) === 0),
+).length;
 
 // Empty objects used only to stamp out client-side templates.
 const emptyBookmark: Bookmark = {
@@ -208,6 +212,7 @@ const emptyCategory: Category = {
                         category={entry.category}
                         displayName={entry.short}
                         count={entry.count}
+                        hideWhenEmpty={entry.category.id === uncategorisedCategoryId}
                         deferred
                       />
                     ))}

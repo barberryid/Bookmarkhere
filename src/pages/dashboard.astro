@@ -28,14 +28,33 @@ const [categories, bookmarks] = await Promise.all([
   listBookmarks(db, userId),
 ]);
 
-const groupedBookmarks = categories.map((category) => ({
-  category,
-  bookmarks: bookmarks
-    .filter((bookmark) => bookmark.categoryId === category.id)
-    .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title)),
-}));
+const ordered = [...bookmarks].sort(
+  (a, b) =>
+    a.categoryId.localeCompare(b.categoryId) ||
+    a.sortOrder - b.sortOrder ||
+    a.title.localeCompare(b.title),
+);
 
-const favourites = bookmarks.filter((bookmark) => bookmark.isFavourite).slice(0, 20);
+const countByCategory = new Map<string, number>();
+for (const bookmark of bookmarks) {
+  countByCategory.set(bookmark.categoryId, (countByCategory.get(bookmark.categoryId) ?? 0) + 1);
+}
+
+const favouriteCount = bookmarks.filter((bookmark) => bookmark.isFavourite).length;
+
+// Cards are built on the client from this compact payload. Rendering 2,000+
+// cards server-side blows the Worker CPU/memory budget (Error 1102); a JSON
+// blob keeps the response small and the render cheap. Short keys shrink it
+// further. The "<" escape keeps the closing </script> tag safe.
+const bookmarkData = ordered.map((bookmark) => ({
+  i: bookmark.id,
+  t: bookmark.title,
+  u: bookmark.url,
+  c: bookmark.categoryId,
+  d: bookmark.description ?? "",
+  f: bookmark.isFavourite ? 1 : 0,
+}));
+const bookmarkJson = JSON.stringify(bookmarkData).replace(/</g, "\\u003c");
 
 const totalBookmarks = bookmarks.length;
 const totalCategories = categories.length;
@@ -151,7 +170,7 @@ const emptyCategory: Category = {
               data-density="compact"
               class:list={[
                 "rounded-lg border border-edge bg-surface-2 p-4 shadow-card",
-                favourites.length === 0 && "hidden",
+                favouriteCount === 0 && "hidden",
               ]}
             >
               <div class="mb-3 flex items-center gap-2">
@@ -161,20 +180,20 @@ const emptyCategory: Category = {
                 <div>
                   <h2 class="text-base font-semibold text-ink">Favourites</h2>
                   <p data-favourites-count class="text-xs text-ink-mute tabular-nums">
-                    {favourites.length} {favourites.length === 1 ? "bookmark" : "bookmarks"}
+                    {favouriteCount} {favouriteCount === 1 ? "bookmark" : "bookmarks"}
                   </p>
                 </div>
               </div>
-              <div data-category-grid class="grid grid-cols-1 gap-0">
-                {favourites.map((bookmark) => (
-                  <BookmarkCard bookmark={bookmark} searchText="favourite" />
-                ))}
-              </div>
+              <div data-category-grid class="grid grid-cols-1 gap-0" />
             </section>
 
             <div data-sections-container class="grid content-start gap-5">
-              {groupedBookmarks.map(({ category, bookmarks }) => (
-                <CategorySection category={category} bookmarks={bookmarks} />
+              {categories.map((category) => (
+                <CategorySection
+                  category={category}
+                  count={countByCategory.get(category.id) ?? 0}
+                  deferred
+                />
               ))}
 
               <div data-new-category-row class="flex items-center">
@@ -248,6 +267,9 @@ const emptyCategory: Category = {
   <template id="category-section-template">
     <CategorySection category={emptyCategory} bookmarks={[]} />
   </template>
+
+  <!-- Compact bookmark payload; cards are hydrated client-side from this. -->
+  <script id="bookmark-data" type="application/json" set:html={bookmarkJson}></script>
 
   <script>
     import "../scripts/dashboard";

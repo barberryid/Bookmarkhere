@@ -15,10 +15,19 @@ import type { Bookmark, Category } from "@lib/types";
 
 type Props = {
   category: Category;
-  bookmarks: Bookmark[];
+  bookmarks?: Bookmark[];
+  /** Header count when cards are hydrated client-side (deferred). */
+  count?: number;
+  /**
+   * When true, render an empty grid shell (no cards, no empty state). The
+   * client fills the grid from the embedded bookmark JSON. Keeps the
+   * server-rendered HTML small enough to stay within Worker limits.
+   */
+  deferred?: boolean;
 };
 
-const { category, bookmarks } = Astro.props;
+const { category, bookmarks = [], deferred = false } = Astro.props;
+const count = Astro.props.count ?? bookmarks.length;
 ---
 
 <section
@@ -45,8 +54,8 @@ const { category, bookmarks } = Astro.props;
       </span>
       <div class="min-w-0">
         <h2 data-category-title class="truncate text-base font-semibold text-ink">{category.name}</h2>
-        <p data-category-count data-total={bookmarks.length} class="text-xs text-ink-mute tabular-nums">
-          {bookmarks.length} {bookmarks.length === 1 ? "bookmark" : "bookmarks"}
+        <p data-category-count data-total={count} class="text-xs text-ink-mute tabular-nums">
+          {count} {count === 1 ? "bookmark" : "bookmarks"}
         </p>
       </div>
     </div>
@@ -78,12 +87,12 @@ const { category, bookmarks } = Astro.props;
       data-category-grid
       class:list={[
         "grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
-        !bookmarks.length && "hidden",
+        !deferred && !bookmarks.length && "hidden",
       ]}
     >
       {bookmarks.map((bookmark) => <BookmarkCard bookmark={bookmark} searchText={category.name} />)}
     </div>
-    <div data-category-empty class:list={[bookmarks.length && "hidden"]}>
+    <div data-category-empty class:list={[(deferred || bookmarks.length) && "hidden"]}>
       <EmptyState title="No bookmarks here yet." message="Add a bookmark or move one into this category." compact />
     </div>
   </div>

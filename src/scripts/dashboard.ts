@@ -2,6 +2,7 @@ import { applyAllCollapsed } from "./collapse";
 import { initDensity } from "./density";
 import { initDragDrop } from "./dragdrop";
 import { initFaviconFallback, refreshAllCounts } from "./dom";
+import { hydrateCards } from "./hydrate";
 import { initMutations } from "./mutations";
 import { initPalette } from "./palette";
 import { initRail } from "./rail";
@@ -10,6 +11,8 @@ import { initShortcuts } from "./shortcuts";
 
 function init(): void {
   initFaviconFallback();
+  // Build cards from the embedded payload before anything reads the DOM.
+  hydrateCards();
   initDensity();
   initMutations();
   applyAllCollapsed();

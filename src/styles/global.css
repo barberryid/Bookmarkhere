@@ -220,6 +220,11 @@ mark.search-hit {
 .rail-collection.rail-collapsed .rail-caret {
   transform: rotate(-90deg);
 }
+/* .rail-link sets display:flex (unlayered), which would beat Tailwind's
+   layered .hidden — so use a dedicated unlayered class to fold rail rows. */
+.rail-link.rail-hidden {
+  display: none;
+}
 
 kbd {
   font-variant-numeric: tabular-nums;

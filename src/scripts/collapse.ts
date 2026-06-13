@@ -71,6 +71,11 @@ function persistCollections(): void {
   }
 }
 
+/** Is a collection (by name) collapsed, ignoring the search override? */
+export function isCollectionCollapsed(name: string): boolean {
+  return collapsedCollections.has(name);
+}
+
 export function applyCollectionCollapsed(collection: HTMLElement): void {
   const name = collection.dataset.collectionName ?? "";
   // Searching always reveals matching collections.
@@ -81,6 +86,11 @@ export function applyCollectionCollapsed(collection: HTMLElement): void {
   toggle?.querySelector("svg")?.classList.toggle("-rotate-90", collapsed);
 }
 
+/**
+ * Toggle a collection's collapsed state (by name) and re-apply it to the main
+ * view. The rail listens for "linkshelf:collectioncollapse" to stay in sync,
+ * so collapsing from either place folds both.
+ */
 export function toggleCollectionCollapsed(collection: HTMLElement): void {
   const name = collection.dataset.collectionName ?? "";
   if (collapsedCollections.has(name)) {
@@ -90,4 +100,23 @@ export function toggleCollectionCollapsed(collection: HTMLElement): void {
   }
   persistCollections();
   applyCollectionCollapsed(collection);
+  document.dispatchEvent(
+    new CustomEvent("linkshelf:collectioncollapse", { detail: { name } }),
+  );
+}
+
+/** Toggle by collection name (used by the rail, which has no main element). */
+export function toggleCollectionCollapsedByName(name: string): void {
+  const collection = $(`[data-collection][data-collection-name="${CSS.escape(name)}"]`);
+  if (collection) {
+    toggleCollectionCollapsed(collection);
+    return;
+  }
+  // No matching main element — toggle state directly and notify.
+  if (collapsedCollections.has(name)) collapsedCollections.delete(name);
+  else collapsedCollections.add(name);
+  persistCollections();
+  document.dispatchEvent(
+    new CustomEvent("linkshelf:collectioncollapse", { detail: { name } }),
+  );
 }

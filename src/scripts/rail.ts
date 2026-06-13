@@ -1,23 +1,7 @@
 import { $, $$, allSections, gridFor, splitCollection } from "./dom";
-import { expandSection } from "./collapse";
+import { expandSection, isCollectionCollapsed, toggleCollectionCollapsedByName } from "./collapse";
 
 let observer: IntersectionObserver | null = null;
-
-const RAIL_COLLAPSE_KEY = "linkshelf-rail-collapsed";
-let collapsed = new Set<string>();
-try {
-  collapsed = new Set(JSON.parse(localStorage.getItem(RAIL_COLLAPSE_KEY) ?? "[]"));
-} catch {
-  // ignore corrupted storage
-}
-
-function persist(): void {
-  try {
-    localStorage.setItem(RAIL_COLLAPSE_KEY, JSON.stringify([...collapsed]));
-  } catch {
-    // storage unavailable
-  }
-}
 
 function railEl(): HTMLElement | null {
   return $("[data-category-rail]");
@@ -27,15 +11,19 @@ function sectionCount(section: HTMLElement): number {
   return gridFor(section)?.children.length ?? 0;
 }
 
-/** Hide the category links under collapsed collections; rotate their carets. */
+/**
+ * Hide the category links under collapsed collections and rotate their carets.
+ * Reads the shared collapse state (by collection name) so the rail and the
+ * main view stay folded together.
+ */
 function applyCollapsed(): void {
   const rail = railEl();
   if (!rail) return;
   for (const link of $$("[data-rail-parent]", rail)) {
-    link.classList.toggle("hidden", collapsed.has(link.dataset.railParent ?? ""));
+    link.classList.toggle("rail-hidden", isCollectionCollapsed(link.dataset.railParent ?? ""));
   }
   for (const header of $$("[data-rail-collection]", rail)) {
-    header.classList.toggle("rail-collapsed", collapsed.has(header.dataset.railCollection ?? ""));
+    header.classList.toggle("rail-collapsed", isCollectionCollapsed(header.dataset.railCollection ?? ""));
   }
 }
 
@@ -65,10 +53,9 @@ function build(): void {
   for (const node of Array.from(container.children) as HTMLElement[]) {
     if (node.matches("[data-collection]")) {
       const name = node.dataset.collectionName ?? "";
-      const key = node.id.replace(/^collection-/, "");
       const sections = $$("[data-category-section]", node);
       const total = sections.reduce((n, s) => n + sectionCount(s), 0);
-      list.append(collectionHeader(key, name, total));
+      list.append(collectionHeader(name, total));
       for (const section of sections) {
         if (section.classList.contains("hidden")) continue;
         const full = section.dataset.categoryName ?? "";
@@ -82,7 +69,7 @@ function build(): void {
               expandSection(section);
               section.scrollIntoView({ behavior: "smooth", block: "start" });
             },
-            key,
+            name,
           ),
         );
       }
@@ -103,11 +90,14 @@ function build(): void {
   observe();
 }
 
-/** Collection header in the rail — clicking it collapses its category list. */
-function collectionHeader(key: string, name: string, count: number): HTMLElement {
+/**
+ * Collection header in the rail. Clicking it folds the collection in BOTH the
+ * rail and the main view (shared state via toggleCollectionCollapsedByName).
+ */
+function collectionHeader(name: string, count: number): HTMLElement {
   const button = document.createElement("button");
   button.type = "button";
-  button.dataset.railCollection = key;
+  button.dataset.railCollection = name;
   button.className =
     "rail-collection focus-ring mt-2 flex w-full items-center gap-1.5 rounded-md px-1.5 py-1 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint hover:text-ink";
 
@@ -125,12 +115,7 @@ function collectionHeader(key: string, name: string, count: number): HTMLElement
   countEl.textContent = String(count);
 
   button.append(caret, nameEl, countEl);
-  button.addEventListener("click", () => {
-    if (collapsed.has(key)) collapsed.delete(key);
-    else collapsed.add(key);
-    persist();
-    applyCollapsed();
-  });
+  button.addEventListener("click", () => toggleCollectionCollapsedByName(name));
   return button;
 }
 
@@ -192,4 +177,6 @@ function observe(): void {
 export function initRail(): void {
   build();
   document.addEventListener("linkshelf:domchange", build);
+  // Fold the rail when a collection is collapsed from the main view (or rail).
+  document.addEventListener("linkshelf:collectioncollapse", applyCollapsed);
 }

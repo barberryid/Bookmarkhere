@@ -311,6 +311,42 @@ kbd {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---- Category board ------------------------------------------------------
+   A dense, bento-inspired grid of compact category/collection tiles. Collapsed
+   tiles pack into columns; an expanded tile breaks out to a full-width panel
+   (grid-column: 1 / -1) so its contents stay readable. The collapsed/expanded
+   state is stamped onto each tile as [data-collapsed] by collapse.ts. */
+.category-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.625rem;
+  align-items: start;
+  grid-auto-flow: row dense;
+}
+
+.category-board > [data-collection]:not([data-collapsed]),
+.category-board > [data-category-section]:not([data-collapsed]),
+.category-board > [data-new-category-row] {
+  grid-column: 1 / -1;
+}
+
+/* Collapsed tiles read as equal-height compact cards. */
+.category-board > [data-collection][data-collapsed],
+.category-board > [data-category-section][data-collapsed] {
+  min-height: 4.25rem;
+}
+.category-board > [data-collection][data-collapsed]:hover,
+.category-board > [data-category-section][data-collapsed]:hover {
+  border-color: var(--color-edge-strong);
+}
+
+/* Keep one column (and no horizontal overflow) on small phones. */
+@media (max-width: 30rem) {
+  .category-board {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---- Compact density ----------------------------------------------------
    Applied via data-density="compact" on <main> (global toggle) or on a single
    section (the Favourites strip is always compact). */

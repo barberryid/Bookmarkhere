@@ -1,4 +1,4 @@
-import { applyAllCollapsed } from "./collapse";
+import { applyAllCollapsed, seedCollapsedDefaults } from "./collapse";
 import { initDensity } from "./density";
 import { initDragDrop } from "./dragdrop";
 import { initDrawer } from "./drawer";
@@ -16,6 +16,7 @@ function init(): void {
   hydrateCards();
   initDensity();
   initMutations();
+  seedCollapsedDefaults();
   applyAllCollapsed();
   refreshAllCounts();
   initSearch();

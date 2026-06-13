@@ -22,36 +22,33 @@ const Icon = ICONS[style.icon as keyof typeof ICONS] ?? Layers;
   data-collection
   data-collection-name={name}
   id={`collection-${slug}`}
-  style={`--cat: var(${style.colorVar})`}
-  class="scroll-mt-32 overflow-hidden rounded-xl border border-edge bg-surface-2/60"
+  style={`--cat: var(${style.colorVar}); border-left-color: var(--cat)`}
+  class="tile group/tile relative scroll-mt-32 overflow-hidden rounded-xl border border-edge border-l-[3px] bg-surface-2/60"
 >
-  <header
-    class="flex items-center gap-3 border-l-2 px-3 py-2.5 sm:px-4"
-    style="border-color: var(--cat)"
-  >
+  <h2 class="contents">
     <button
       type="button"
       data-collapse-collection
       aria-expanded="true"
-      class="focus-ring grid h-8 w-8 shrink-0 place-items-center rounded-md text-ink-mute hover:bg-surface hover:text-ink"
-      title="Collapse or expand collection"
-      aria-label="Collapse or expand collection"
+      class="focus-ring flex w-full items-center gap-2.5 px-3 py-2.5 text-left hover:bg-surface/50"
     >
-      <ChevronDown size={18} class="transition-transform" />
+      <ChevronDown size={16} class="shrink-0 text-ink-faint transition-transform" />
+      <span
+        class="grid h-8 w-8 shrink-0 place-items-center rounded-md"
+        style="color: var(--cat); background: color-mix(in srgb, var(--cat) 16%, transparent)"
+      >
+        <Icon size={16} />
+      </span>
+      <span class="min-w-0 flex-1">
+        <span class="block truncate text-sm font-semibold tracking-tight text-ink" title={name}>{name}</span>
+        <span data-collection-count class="block truncate text-xs text-ink-mute tabular-nums">
+          {categories.length} {categories.length === 1 ? "category" : "categories"} · {count}
+        </span>
+      </span>
     </button>
-    <span
-      class="grid h-8 w-8 shrink-0 place-items-center rounded-md"
-      style="color: var(--cat); background: color-mix(in srgb, var(--cat) 16%, transparent)"
-    >
-      <Icon size={17} />
-    </span>
-    <h2 class="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight text-ink" title={name}>{name}</h2>
-    <span data-collection-count class="shrink-0 rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-ink-mute tabular-nums">
-      {categories.length} {categories.length === 1 ? "category" : "categories"} · {count}
-    </span>
-  </header>
+  </h2>
 
-  <div data-collection-body class="grid gap-4 p-3 sm:p-4">
+  <div data-collection-body class="grid gap-2.5 border-t border-edge p-2.5 sm:p-3">
     {
       categories.map(({ category, short, count }) => (
         <CategorySection category={category} displayName={short} count={count} deferred />

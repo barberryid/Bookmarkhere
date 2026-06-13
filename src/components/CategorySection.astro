@@ -49,57 +49,66 @@ const displayName = Astro.props.displayName ?? category.name;
   data-category-name={category.name}
   id={`category-${category.id}`}
   data-hide-when-empty={hideWhenEmpty ? "" : null}
+  style="border-left-color: var(--cat, var(--color-accent))"
   class:list={[
-    "scroll-mt-32 rounded-lg border border-edge bg-surface-2 p-4 shadow-card",
+    "tile group/tile relative scroll-mt-32 overflow-hidden rounded-lg border border-edge border-l-[3px] bg-surface shadow-card",
     hideWhenEmpty && count === 0 && "hidden",
   ]}
 >
-  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-    <div class="flex min-w-0 items-center gap-2">
+  <div class="flex items-center gap-1">
+    <h2 class="contents">
+      <button
+        type="button"
+        data-collapse-category
+        aria-expanded="true"
+        class="focus-ring flex min-w-0 flex-1 items-center gap-2.5 px-3 py-2.5 text-left hover:bg-surface-2/70"
+      >
+        <ChevronDown size={15} class="shrink-0 text-ink-faint transition-transform" />
+        <span
+          class="grid h-8 w-8 shrink-0 place-items-center rounded-md"
+          style="color: var(--cat, var(--color-accent)); background: color-mix(in srgb, var(--cat, var(--color-accent)) 14%, transparent)"
+        >
+          <Folder size={16} />
+        </span>
+        <span class="min-w-0 flex-1">
+          <span data-category-title class="block truncate text-sm font-semibold text-ink" title={displayName}>{displayName}</span>
+          <span data-category-count data-total={count} class="block truncate text-xs text-ink-mute tabular-nums">
+            {count} {count === 1 ? "bookmark" : "bookmarks"}
+          </span>
+        </span>
+      </button>
+    </h2>
+
+    <div class="relative z-10 flex shrink-0 items-center gap-0.5 pr-2 opacity-100 transition sm:opacity-0 sm:group-hover/tile:opacity-100 sm:group-focus-within/tile:opacity-100">
       <button
         type="button"
         data-category-grip
-        class="hidden cursor-grab touch-none text-ink-faint hover:text-ink-mute sm:block"
+        class="hidden cursor-grab touch-none place-items-center text-ink-faint hover:text-ink-mute sm:grid sm:h-7 sm:w-7"
         title="Drag to reorder category"
         aria-label="Drag to reorder category"
         draggable="true"
       >
-        <GripVertical size={15} />
+        <GripVertical size={14} />
       </button>
-      <span class="grid h-8 w-8 place-items-center rounded-md bg-accent-soft text-accent">
-        <Folder size={17} />
-      </span>
-      <div class="min-w-0">
-        <h2 data-category-title class="truncate text-base font-semibold text-ink" title={displayName}>{displayName}</h2>
-        <p data-category-count data-total={count} class="text-xs text-ink-mute tabular-nums">
-          {count} {count === 1 ? "bookmark" : "bookmarks"}
-        </p>
-      </div>
-    </div>
-
-    <div class="flex items-center gap-1">
-      <button type="button" data-collapse-category aria-expanded="true" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Collapse or expand category" aria-label="Collapse or expand category">
-        <ChevronDown size={15} class="transition-transform" />
-      </button>
-      <button type="button" data-move-category="up" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Move category up" aria-label="Move category up">
+      <button type="button" data-move-category="up" class="focus-ring grid h-7 w-7 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink" title="Move category up" aria-label="Move category up">
         <ArrowUp size={14} />
       </button>
-      <button type="button" data-move-category="down" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Move category down" aria-label="Move category down">
+      <button type="button" data-move-category="down" class="focus-ring grid h-7 w-7 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink" title="Move category down" aria-label="Move category down">
         <ArrowDown size={14} />
       </button>
-      <button type="button" data-add-to-category={category.id} class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Add bookmark to category" aria-label="Add bookmark to category">
+      <button type="button" data-add-to-category={category.id} class="focus-ring grid h-7 w-7 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink" title="Add bookmark to category" aria-label="Add bookmark to category">
         <Plus size={15} />
       </button>
-      <button type="button" data-rename-category class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Rename category" aria-label="Rename category">
+      <button type="button" data-rename-category class="focus-ring grid h-7 w-7 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink" title="Rename category" aria-label="Rename category">
         <Pencil size={14} />
       </button>
-      <button type="button" data-delete-category class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-danger/30 bg-surface text-danger hover:border-danger/60 hover:bg-danger-soft" title="Delete category" aria-label="Delete category">
+      <button type="button" data-delete-category class="focus-ring grid h-7 w-7 place-items-center rounded-md text-danger hover:bg-danger-soft hover:text-danger-strong" title="Delete category" aria-label="Delete category">
         <Trash2 size={14} />
       </button>
     </div>
   </div>
 
-  <div data-category-body>
+  <div data-category-body class="border-t border-edge p-3">
     <div
       data-category-grid
       class:list={[

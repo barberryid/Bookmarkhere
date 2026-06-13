@@ -498,6 +498,12 @@ function startInlineRename(section: HTMLElement): void {
   input.className =
     "focus-ring h-8 w-56 max-w-full rounded-md border border-edge-strong bg-surface px-2 text-base font-semibold";
   input.setAttribute("aria-label", "Category name");
+  // The title now lives inside the collapse-toggle button, so swallow pointer
+  // events on the input — otherwise clicking to place the cursor would toggle
+  // the category open/closed.
+  for (const type of ["click", "mousedown", "pointerdown"] as const) {
+    input.addEventListener(type, (event) => event.stopPropagation());
+  }
   heading.replaceChildren(input);
   input.focus();
   input.select();

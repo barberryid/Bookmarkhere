@@ -45,7 +45,7 @@ const Icon = ICONS[style.icon as keyof typeof ICONS] ?? Layers;
     >
       <Icon size={17} />
     </span>
-    <h2 class="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight text-ink">{name}</h2>
+    <h2 class="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight text-ink" title={name}>{name}</h2>
     <span data-collection-count class="shrink-0 rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-ink-mute tabular-nums">
       {categories.length} {categories.length === 1 ? "category" : "categories"} · {count}
     </span>

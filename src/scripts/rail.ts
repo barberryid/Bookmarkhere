@@ -42,9 +42,15 @@ function build(): void {
   if (favourites && !favourites.classList.contains("hidden")) {
     const grid = gridFor(favourites);
     list.append(
-      categoryLink("favourites-section", "★ Favourites", grid?.children.length ?? 0, false, () => {
-        favourites.scrollIntoView({ behavior: "smooth", block: "start" });
-      }),
+      categoryLink(
+        "favourites-section",
+        "★ Favourites",
+        grid?.children.length ?? 0,
+        false,
+        () => favourites.scrollIntoView({ behavior: "smooth", block: "start" }),
+        undefined,
+        "favourites",
+      ),
     );
   }
 
@@ -71,6 +77,7 @@ function build(): void {
               section.scrollIntoView({ behavior: "smooth", block: "start" });
             },
             name,
+            section.id,
           ),
         );
       }
@@ -79,10 +86,18 @@ function build(): void {
       if (node.classList.contains("hidden")) continue;
       const full = node.dataset.categoryName ?? "";
       list.append(
-        categoryLink(`rail-${node.dataset.categoryId}`, full, sectionCount(node), false, () => {
-          expandSection(node);
-          node.scrollIntoView({ behavior: "smooth", block: "start" });
-        }),
+        categoryLink(
+          `rail-${node.dataset.categoryId}`,
+          full,
+          sectionCount(node),
+          false,
+          () => {
+            expandSection(node);
+            node.scrollIntoView({ behavior: "smooth", block: "start" });
+          },
+          undefined,
+          node.id,
+        ),
       );
     }
   }
@@ -132,9 +147,11 @@ function categoryLink(
   indented: boolean,
   onClick: () => void,
   parentKey?: string,
+  targetId?: string,
 ): HTMLElement {
   const link = document.createElement("a");
-  link.href = "#";
+  // Real in-page target so it works (and is semantic) even without JS.
+  link.href = targetId ? `#${targetId}` : "#";
   link.className = indented ? "rail-link rail-link-nested" : "rail-link";
   link.dataset.railKey = key;
   if (parentKey) link.dataset.railParent = parentKey;

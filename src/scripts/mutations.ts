@@ -532,6 +532,7 @@ function startInlineRename(section: HTMLElement): void {
     section.dataset.categoryName = finalName;
     const finalShort = splitCollection(finalName).short;
     heading.replaceChildren(document.createTextNode(finalShort));
+    heading.setAttribute("title", finalShort);
     renameCategoryOption(id, finalName);
     reindexSectionCards(section);
     announceDomChange();

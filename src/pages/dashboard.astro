@@ -201,9 +201,10 @@ const emptyCategory: Category = {
           <div class="grid content-start gap-5">
             <section
               data-favourites
+              id="favourites"
               data-density="compact"
               class:list={[
-                "rounded-lg border border-edge bg-surface-2 p-4 shadow-card",
+                "scroll-mt-32 rounded-lg border border-edge bg-surface-2 p-4 shadow-card",
                 favouriteCount === 0 && "hidden",
               ]}
             >
@@ -280,15 +281,27 @@ const emptyCategory: Category = {
             </div>
 
             <div data-search-empty class="hidden">
-              <EmptyState title="No bookmarks found." message="No bookmarks match this search.">
-                <button
-                  type="button"
-                  data-add-from-search
-                  class="focus-ring mt-4 inline-flex h-10 items-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-accent-ink hover:bg-accent-strong"
-                >
-                  <Plus size={16} />
-                  Add “<span data-search-query></span>” as a bookmark
-                </button>
+              <EmptyState
+                title="No matches found"
+                message="Nothing matches your search. Try different words, or add it as a new bookmark."
+              >
+                <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    data-add-from-search
+                    class="btn-vault focus-ring inline-flex h-10 max-w-[22rem] items-center gap-2 rounded-md px-4 text-sm"
+                  >
+                    <Plus size={16} class="shrink-0" />
+                    <span class="min-w-0 truncate">Add “<span data-search-query></span>”</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-search-clear
+                    class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink-mute hover:border-edge-strong hover:text-ink"
+                  >
+                    Clear search
+                  </button>
+                </div>
               </EmptyState>
             </div>
           </div>

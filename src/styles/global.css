@@ -26,7 +26,7 @@
   /* Text */
   --color-ink: #17202a;
   --color-ink-mute: #4e5c68;
-  --color-ink-faint: #7c8790;
+  --color-ink-faint: #5c646d; /* darkened for AA (4.5:1+) on warm surfaces */
 
   /* Accent — antique gold */
   --color-accent: #7a5b22;
@@ -241,6 +241,11 @@ mark.search-hit {
   color: var(--color-accent-strong);
   font-weight: 500;
 }
+.rail-link:focus-visible,
+.rail-collection:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
 .rail-link .rail-name {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -362,6 +367,14 @@ kbd {
 /* Move buttons make no sense on the Favourites mirror copies */
 [data-favourites] [data-move-bookmark] {
   display: none;
+}
+
+/* Even out grid rows: a consistent floor in the default (non-compact) view. */
+[data-bookmark-card] {
+  min-height: 54px;
+}
+[data-density="compact"] [data-bookmark-card] {
+  min-height: 0;
 }
 
 ::backdrop {

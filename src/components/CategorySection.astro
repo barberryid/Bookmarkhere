@@ -70,7 +70,7 @@ const displayName = Astro.props.displayName ?? category.name;
         <Folder size={17} />
       </span>
       <div class="min-w-0">
-        <h2 data-category-title class="truncate text-base font-semibold text-ink">{displayName}</h2>
+        <h2 data-category-title class="truncate text-base font-semibold text-ink" title={displayName}>{displayName}</h2>
         <p data-category-count data-total={count} class="text-xs text-ink-mute tabular-nums">
           {count} {count === 1 ? "bookmark" : "bookmarks"}
         </p>

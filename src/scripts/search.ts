@@ -172,5 +172,8 @@ export function initSearch(): void {
   // Enter is handled by shortcuts.ts (opens the selected result).
   input.form?.addEventListener("submit", (event) => event.preventDefault());
 
-  $("[data-search-clear]")?.addEventListener("click", () => clearSearch());
+  // Both the search-bar clear (×) and the empty-state "Clear search" button.
+  for (const button of $$("[data-search-clear]")) {
+    button.addEventListener("click", () => clearSearch());
+  }
 }

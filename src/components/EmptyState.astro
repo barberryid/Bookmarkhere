@@ -8,15 +8,27 @@ type Props = {
 };
 
 const {
-  title = "No bookmarks found.",
+  title = "No bookmarks found",
   message = "Try a different search term or add a new bookmark.",
   compact = false,
 } = Astro.props;
 ---
 
-<div class:list={["rounded-lg border border-dashed border-edge-strong bg-surface text-center", compact ? "p-5" : "p-8"]}>
-  <SearchX size={compact ? 20 : 26} class="mx-auto text-ink-faint" />
-  <h2 class="mt-3 text-sm font-semibold text-ink">{title}</h2>
-  <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-ink-mute">{message}</p>
+<div
+  class:list={[
+    "rounded-xl border border-edge bg-surface text-center shadow-card",
+    compact ? "p-6" : "p-10",
+  ]}
+>
+  <span
+    class:list={[
+      "mx-auto grid place-items-center rounded-full bg-accent-soft text-accent",
+      compact ? "h-10 w-10" : "h-12 w-12",
+    ]}
+  >
+    <SearchX size={compact ? 18 : 22} />
+  </span>
+  <h2 class="mt-3 text-balance text-base font-semibold text-ink">{title}</h2>
+  <p class="mx-auto mt-1 max-w-md text-pretty text-sm leading-6 text-ink-mute">{message}</p>
   <slot />
 </div>

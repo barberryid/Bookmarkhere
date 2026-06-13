@@ -211,6 +211,48 @@ export async function deleteBookmark(db: D1Database, userId: string, id: string)
   if (!result.meta.changes) throw new Error("Bookmark not found.");
 }
 
+/** Find a bookmark by its normalized-url key (for duplicate pre-checks). */
+export async function findBookmarkByUrl(
+  db: D1Database,
+  userId: string,
+  url: string,
+  excludeId?: string,
+): Promise<Bookmark | null> {
+  const normalizedKey = normalizeUrlKey(url);
+  const row = await findByNormalizedUrl(db, userId, normalizedKey, excludeId);
+  return row ? rowToBookmark(row) : null;
+}
+
+/**
+ * Persist an explicit ordering of bookmarks within a category. Ids not present
+ * in the category (or belonging to another user) are ignored.
+ */
+export async function reorderBookmarks(
+  db: D1Database,
+  userId: string,
+  categoryId: string,
+  orderedIds: string[],
+): Promise<void> {
+  const { results } = await db
+    .prepare("SELECT id FROM bookmarks WHERE user_id = ?1 AND category_id = ?2")
+    .bind(userId, categoryId)
+    .all<{ id: string }>();
+  const valid = new Set(results.map((row) => row.id));
+
+  const now = nowIso();
+  const statements = orderedIds
+    .filter((id) => valid.has(id))
+    .map((id, index) =>
+      db
+        .prepare(
+          "UPDATE bookmarks SET sort_order = ?1, category_id = ?2, updated_at = ?3 WHERE user_id = ?4 AND id = ?5",
+        )
+        .bind((index + 1) * 10, categoryId, now, userId, id),
+    );
+
+  if (statements.length) await db.batch(statements);
+}
+
 export async function moveBookmark(
   db: D1Database,
   userId: string,

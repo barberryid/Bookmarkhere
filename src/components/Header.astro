@@ -1,5 +1,5 @@
 ---
-import { Archive, LayoutDashboard, Plus } from "@lucide/astro";
+import { Archive, LayoutDashboard, Monitor, Moon, Plus, Sun } from "@lucide/astro";
 import { productConfig } from "@lib/config";
 
 type Props = {
@@ -9,10 +9,10 @@ type Props = {
 const { active = "home" } = Astro.props;
 ---
 
-<header class="border-b border-[#dfe4d7] bg-[#fbfcf7]/90 backdrop-blur">
+<header class="border-b border-edge bg-surface/90 backdrop-blur">
   <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
     <a href="/" class="focus-ring flex items-center gap-2 rounded-md" aria-label={`${productConfig.appName} home`}>
-      <span class="grid h-9 w-9 place-items-center rounded-md border border-[#bfcbbb] bg-[#eef4e8] text-[#2f6f5e]">
+      <span class="grid h-9 w-9 place-items-center rounded-lg border border-edge bg-accent-soft text-accent">
         <Archive size={19} stroke-width={2.2} />
       </span>
       <span class="text-lg font-semibold tracking-normal">{productConfig.appName}</span>
@@ -24,21 +24,50 @@ const { active = "home" } = Astro.props;
         class:list={[
           "focus-ring inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition",
           active === "dashboard"
-            ? "bg-[#17201b] text-white"
-            : "border border-[#dfe4d7] bg-white text-[#314138] hover:border-[#b7c5b4]",
+            ? "bg-ink text-canvas"
+            : "border border-edge bg-surface text-ink-mute hover:border-edge-strong",
         ]}
       >
         <LayoutDashboard size={16} />
         Dashboard
       </a>
-      <a
-        href="/dashboard#add-bookmark-form"
-        class="focus-ring hidden h-9 items-center gap-2 rounded-md border border-[#2f6f5e] bg-[#2f6f5e] px-3 text-sm font-medium text-white shadow-sm transition hover:bg-[#285f51] sm:inline-flex"
-        title="Add bookmark"
+      {
+        active === "dashboard" ? (
+          <button
+            type="button"
+            data-open-add-bookmark
+            class="focus-ring hidden h-9 items-center gap-2 rounded-md bg-accent px-3 text-sm font-medium text-accent-ink shadow-sm transition hover:bg-accent-strong sm:inline-flex"
+            title="Add bookmark (a)"
+          >
+            <Plus size={16} />
+            Add
+          </button>
+        ) : (
+          <a
+            href="/dashboard"
+            class="focus-ring hidden h-9 items-center gap-2 rounded-md bg-accent px-3 text-sm font-medium text-accent-ink shadow-sm transition hover:bg-accent-strong sm:inline-flex"
+            title="Add bookmark"
+          >
+            <Plus size={16} />
+            Add
+          </a>
+        )
+      }
+      <button
+        type="button"
+        data-theme-toggle
+        class="focus-ring grid h-9 w-9 place-items-center rounded-md border border-edge bg-surface text-ink-mute transition hover:border-edge-strong hover:text-ink"
+        aria-label="Toggle theme"
       >
-        <Plus size={16} />
-        Add
-      </a>
+        <Sun size={16} class="theme-icon theme-icon-light" />
+        <Moon size={16} class="theme-icon theme-icon-dark" />
+        <Monitor size={16} class="theme-icon theme-icon-system" />
+      </button>
     </nav>
   </div>
 </header>
+
+<script>
+  import { initTheme } from "../scripts/theme";
+  initTheme();
+</script>

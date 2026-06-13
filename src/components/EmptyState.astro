@@ -14,8 +14,9 @@ const {
 } = Astro.props;
 ---
 
-<div class:list={["rounded-md border border-dashed border-[#cbd6c7] bg-white text-center", compact ? "p-5" : "p-8"]}>
-  <SearchX size={compact ? 20 : 26} class="mx-auto text-[#7c8a7f]" />
-  <h2 class="mt-3 text-sm font-semibold text-[#17201b]">{title}</h2>
-  <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-[#66746a]">{message}</p>
+<div class:list={["rounded-lg border border-dashed border-edge-strong bg-surface text-center", compact ? "p-5" : "p-8"]}>
+  <SearchX size={compact ? 20 : 26} class="mx-auto text-ink-faint" />
+  <h2 class="mt-3 text-sm font-semibold text-ink">{title}</h2>
+  <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-ink-mute">{message}</p>
+  <slot />
 </div>

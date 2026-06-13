@@ -1,18 +1,22 @@
 ---
-import { FileUp, FolderPlus, Plus, Save, X } from "@lucide/astro";
-import BookmarkForm from "@components/BookmarkForm.astro";
-import CategoryForm from "@components/CategoryForm.astro";
+import { FileUp, LayoutGrid, List, Plus, Star } from "@lucide/astro";
+import BookmarkCard from "@components/BookmarkCard.astro";
+import BookmarkDialog from "@components/BookmarkDialog.astro";
 import CategorySection from "@components/CategorySection.astro";
+import CommandPalette from "@components/CommandPalette.astro";
+import ConfirmDialog from "@components/ConfirmDialog.astro";
 import EmptyState from "@components/EmptyState.astro";
 import ExportButton from "@components/ExportButton.astro";
 import Header from "@components/Header.astro";
 import ImportPanel from "@components/ImportPanel.astro";
 import SearchBar from "@components/SearchBar.astro";
+import ShortcutCheatsheet from "@components/ShortcutCheatsheet.astro";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getPrivateUserId } from "@lib/auth";
 import { listBookmarks } from "@lib/bookmarks";
 import { listCategories } from "@lib/categories";
-import { getDb } from "@lib/db";
+import { getDb, uncategorisedCategoryId } from "@lib/db";
+import type { Bookmark, Category } from "@lib/types";
 
 export const prerender = false;
 
@@ -31,406 +35,221 @@ const groupedBookmarks = categories.map((category) => ({
     .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title)),
 }));
 
+const favourites = bookmarks.filter((bookmark) => bookmark.isFavourite).slice(0, 20);
+
 const totalBookmarks = bookmarks.length;
 const totalCategories = categories.length;
+
+// Empty objects used only to stamp out client-side templates.
+const emptyBookmark: Bookmark = {
+  id: "",
+  userId,
+  categoryId: "",
+  title: "",
+  url: "",
+  description: "",
+  faviconUrl: undefined,
+  sortOrder: 0,
+  isFavourite: false,
+  createdAt: "",
+  updatedAt: "",
+};
+const emptyCategory: Category = {
+  id: "",
+  userId,
+  name: "",
+  slug: "",
+  sortOrder: 0,
+  createdAt: "",
+  updatedAt: "",
+};
 ---
 
 <BaseLayout title="Dashboard" noindex>
   <Header active="dashboard" />
 
-  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+  <main
+    class="mx-auto max-w-[100rem] px-4 py-6 sm:px-6 lg:px-8"
+    data-uncategorised-id={uncategorisedCategoryId}
+  >
     <section class="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-semibold tracking-normal text-[#17201b]">My Bookmarks</h1>
-        <p class="mt-1 text-sm text-[#66746a]">
-          <span data-visible-count>{totalBookmarks}</span> visible of {totalBookmarks} bookmarks across {totalCategories} categories.
+        <h1 class="text-balance text-2xl font-semibold tracking-normal text-ink">My Bookmarks</h1>
+        <p class="mt-1 text-sm text-ink-mute">
+          <span data-visible-count class="tabular-nums">{totalBookmarks}</span> visible of
+          <span data-total-count class="tabular-nums">{totalBookmarks}</span> bookmarks across
+          <span data-category-total class="tabular-nums">{totalCategories}</span> categories.
         </p>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button type="button" data-open-form="#add-bookmark-form" data-focus-input="#bookmark-title-input" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-[#2f6f5e] px-3 text-sm font-semibold text-white shadow-sm hover:bg-[#285f51]">
+        <button
+          type="button"
+          data-open-add-bookmark
+          class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-accent px-3 text-sm font-semibold text-accent-ink shadow-sm hover:bg-accent-strong"
+        >
           <Plus size={16} />
           Add Bookmark
         </button>
-        <button type="button" data-open-form="#add-category-form" data-focus-input="#category-name-input" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] shadow-sm hover:border-[#9eb19a]">
-          <FolderPlus size={16} />
-          Add Category
-        </button>
-        <a href="/import" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] shadow-sm hover:border-[#9eb19a]">
+        <a
+          href="/import"
+          class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-edge bg-surface px-3 text-sm font-medium text-ink-mute shadow-card hover:border-edge-strong hover:text-ink"
+        >
           <FileUp size={16} />
           Import
         </a>
         <ExportButton format="json" />
         <ExportButton format="csv" />
+        <button
+          type="button"
+          data-density-toggle
+          aria-pressed="false"
+          class="focus-ring grid h-10 w-10 place-items-center rounded-md border border-edge bg-surface text-ink-mute shadow-card hover:border-edge-strong hover:text-ink"
+          title="Toggle density"
+        >
+          <LayoutGrid size={16} class="density-icon-grid" />
+          <List size={16} class="density-icon-compact hidden" />
+        </button>
       </div>
     </section>
 
-    <section class="sticky top-0 z-20 -mx-4 border-y border-[#dfe4d7] bg-[#f7f8f3]/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+    <section class="sticky top-0 z-20 -mx-4 border-y border-edge bg-canvas/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
       <SearchBar />
     </section>
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-      <div class="grid content-start gap-5">
-        {
-          groupedBookmarks.length ? (
-            groupedBookmarks.map(({ category, bookmarks }) => (
-              <CategorySection category={category} bookmarks={bookmarks} />
-            ))
-          ) : (
-            <EmptyState title="No bookmarks yet." message="Add a bookmark or import your Booky export to get started." />
-          )
-        }
-        <div data-search-empty class="hidden">
-          <EmptyState />
+    {
+      totalBookmarks === 0 ? (
+        <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <EmptyState title="No bookmarks yet." message="Add your first bookmark, or import a Booky export to get started." >
+            <button
+              type="button"
+              data-open-add-bookmark
+              class="focus-ring mt-4 inline-flex h-10 items-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-accent-ink hover:bg-accent-strong"
+            >
+              <Plus size={16} />
+              Add a bookmark
+            </button>
+          </EmptyState>
+          <ImportPanel />
         </div>
-      </div>
+      ) : (
+        <div class="mt-6 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+          <aside class="hidden lg:block">
+            <nav
+              data-category-rail
+              aria-label="Categories"
+              class="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pr-1 text-sm"
+            >
+              <p class="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Categories</p>
+              <div data-rail-list class="grid gap-0.5" />
+            </nav>
+          </aside>
 
-      <aside class="grid content-start gap-5">
-        <BookmarkForm categories={categories} />
-        <CategoryForm />
-        <ImportPanel />
-      </aside>
-    </div>
+          <div class="grid content-start gap-5">
+            <section
+              data-favourites
+              data-density="compact"
+              class:list={[
+                "rounded-lg border border-edge bg-surface-2 p-4 shadow-card",
+                favourites.length === 0 && "hidden",
+              ]}
+            >
+              <div class="mb-3 flex items-center gap-2">
+                <span class="grid h-8 w-8 place-items-center rounded-md bg-accent-soft text-star">
+                  <Star size={16} class="fill-star" />
+                </span>
+                <div>
+                  <h2 class="text-base font-semibold text-ink">Favourites</h2>
+                  <p data-favourites-count class="text-xs text-ink-mute tabular-nums">
+                    {favourites.length} {favourites.length === 1 ? "bookmark" : "bookmarks"}
+                  </p>
+                </div>
+              </div>
+              <div data-category-grid class="grid grid-cols-1 gap-0">
+                {favourites.map((bookmark) => (
+                  <BookmarkCard bookmark={bookmark} searchText="favourite" />
+                ))}
+              </div>
+            </section>
+
+            <div data-sections-container class="grid content-start gap-5">
+              {groupedBookmarks.map(({ category, bookmarks }) => (
+                <CategorySection category={category} bookmarks={bookmarks} />
+              ))}
+
+              <div data-new-category-row class="flex items-center">
+                <button
+                  type="button"
+                  data-new-category-button
+                  class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-dashed border-edge-strong bg-surface px-4 text-sm font-medium text-ink-mute hover:border-accent hover:text-ink"
+                >
+                  <Plus size={16} />
+                  New category
+                </button>
+                <form data-new-category-form class="hidden items-center gap-2">
+                  <input
+                    name="name"
+                    required
+                    placeholder="Category name"
+                    autocomplete="off"
+                    class="focus-ring h-10 w-56 rounded-md border border-edge-strong bg-surface px-3 text-sm"
+                  />
+                  <button
+                    type="submit"
+                    class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-accent px-3 text-sm font-semibold text-accent-ink hover:bg-accent-strong"
+                  >
+                    Create
+                  </button>
+                  <button
+                    type="button"
+                    data-new-category-cancel
+                    class="focus-ring inline-flex h-10 items-center rounded-md border border-edge bg-surface px-3 text-sm font-medium text-ink-mute hover:bg-surface-2"
+                  >
+                    Cancel
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div data-search-empty class="hidden">
+              <EmptyState title="No bookmarks found." message="No bookmarks match this search.">
+                <button
+                  type="button"
+                  data-add-from-search
+                  class="focus-ring mt-4 inline-flex h-10 items-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-accent-ink hover:bg-accent-strong"
+                >
+                  <Plus size={16} />
+                  Add “<span data-search-query></span>” as a bookmark
+                </button>
+              </EmptyState>
+            </div>
+          </div>
+        </div>
+      )
+    }
   </main>
 
-  <dialog
-    id="edit-bookmark-dialog"
-    class="m-auto w-[min(92vw,480px)] rounded-md border border-[#dfe5da] bg-white p-0 shadow-xl backdrop:bg-[#17201b]/40"
-  >
-    <form id="edit-bookmark-form" class="p-5">
-      <div class="mb-4 flex items-center justify-between gap-3">
-        <h2 class="text-base font-semibold text-[#17201b]">Edit Bookmark</h2>
-        <button type="button" data-close-dialog class="focus-ring grid h-8 w-8 place-items-center rounded-md text-[#627166] hover:bg-[#edf2e9] hover:text-[#17201b]" aria-label="Close">
-          <X size={17} />
-        </button>
-      </div>
+  <BookmarkDialog categories={categories} />
+  <ConfirmDialog />
+  <CommandPalette />
+  <ShortcutCheatsheet />
 
-      <input type="hidden" name="id" />
-      <div class="grid gap-3">
-        <label class="grid gap-1 text-sm font-medium text-[#34443b]">
-          Title
-          <input name="title" required class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" autocomplete="off" />
-        </label>
-        <label class="grid gap-1 text-sm font-medium text-[#34443b]">
-          URL
-          <input name="url" required inputmode="url" class="focus-ring h-10 rounded-md border border-[#cfd8ca] px-3 font-normal" autocomplete="off" spellcheck="false" />
-        </label>
-        <label class="grid gap-1 text-sm font-medium text-[#34443b]">
-          Category
-          <select name="category_id" class="focus-ring h-10 rounded-md border border-[#cfd8ca] bg-white px-3 font-normal">
-            {categories.map((category) => <option value={category.id}>{category.name}</option>)}
-          </select>
-        </label>
-        <label class="grid gap-1 text-sm font-medium text-[#34443b]">
-          Description
-          <textarea name="description" class="focus-ring min-h-20 rounded-md border border-[#cfd8ca] px-3 py-2 font-normal" placeholder="Optional note"></textarea>
-        </label>
-        <label class="flex items-center gap-2 text-sm font-medium text-[#34443b]">
-          <input type="checkbox" name="is_favourite" class="focus-ring h-4 w-4 rounded border-[#cfd8ca] accent-[#2f6f5e]" />
-          Favourite
-        </label>
-      </div>
+  <!-- Toast region -->
+  <div
+    id="toast-region"
+    class="pointer-events-none fixed inset-x-0 bottom-4 z-50 mx-auto flex w-[min(92vw,26rem)] flex-col gap-2"
+    aria-live="polite"
+  />
 
-      <p class="mt-3 hidden rounded-md border border-[#f0c8a2] bg-[#fff8ef] px-3 py-2 text-sm text-[#7a4a19]" data-form-error></p>
-
-      <div class="mt-4 flex justify-end gap-2">
-        <button type="button" data-close-dialog class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-4 text-sm font-semibold text-[#34443b] hover:bg-[#f6f9f2]">
-          Cancel
-        </button>
-        <button type="submit" class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-[#2f6f5e] px-4 text-sm font-semibold text-white hover:bg-[#285f51]">
-          <Save size={15} />
-          Save
-        </button>
-      </div>
-    </form>
-  </dialog>
+  <!-- Client-side templates -->
+  <template id="bookmark-card-template">
+    <BookmarkCard bookmark={emptyBookmark} />
+  </template>
+  <template id="category-section-template">
+    <CategorySection category={emptyCategory} bookmarks={[]} />
+  </template>
 
   <script>
-    // ---- search -----------------------------------------------------------
-    const searchInput = document.querySelector("#bookmark-search");
-    const visibleCount = document.querySelector("[data-visible-count]");
-    const noResults = document.querySelector("[data-search-empty]");
-    const clearButton = document.querySelector("[data-search-clear]");
-    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-category-section]"));
-
-    // ---- collapsed categories (persisted across visits) -------------------
-    const COLLAPSE_KEY = "linkshelf-collapsed-categories";
-    let collapsedIds = new Set<string>();
-    try {
-      collapsedIds = new Set(JSON.parse(localStorage.getItem(COLLAPSE_KEY) ?? "[]"));
-    } catch {
-      // ignore corrupted storage
-    }
-
-    function applyCollapsed(section: HTMLElement, searching: boolean) {
-      // While searching, matching sections always show their bookmarks.
-      const isCollapsed = !searching && collapsedIds.has(section.dataset.categoryId ?? "");
-      section.querySelector("[data-category-body]")?.classList.toggle("hidden", isCollapsed);
-      const toggle = section.querySelector("[data-collapse-category]");
-      toggle?.setAttribute("aria-expanded", String(!isCollapsed));
-      toggle?.querySelector("svg")?.classList.toggle("-rotate-90", isCollapsed);
-    }
-
-    function applySearch(rawValue: string) {
-      const query = rawValue.trim().toLowerCase();
-      let visibleBookmarks = 0;
-
-      for (const section of sections) {
-        const cards = Array.from(section.querySelectorAll("[data-bookmark-card]"));
-        const emptyState = section.querySelector("[data-category-empty]");
-        let sectionMatches = 0;
-
-        for (const card of cards) {
-          const matches = !query || card.getAttribute("data-search")?.includes(query);
-          card.classList.toggle("hidden", !matches);
-          if (matches) sectionMatches += 1;
-        }
-
-        visibleBookmarks += sectionMatches;
-
-        if (query) {
-          section.classList.toggle("hidden", sectionMatches === 0);
-          emptyState?.classList.add("hidden");
-        } else {
-          section.classList.remove("hidden");
-          emptyState?.classList.toggle("hidden", cards.length > 0);
-        }
-        applyCollapsed(section, Boolean(query));
-      }
-
-      if (visibleCount) {
-        visibleCount.textContent = String(visibleBookmarks);
-      }
-      noResults?.classList.toggle("hidden", !query || visibleBookmarks > 0);
-      clearButton?.classList.toggle("hidden", !rawValue);
-    }
-
-    if (searchInput instanceof HTMLInputElement) {
-      const initialQuery = new URLSearchParams(window.location.search).get("search") ?? "";
-      searchInput.value = initialQuery;
-      applySearch(initialQuery);
-
-      searchInput.form?.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const nextUrl = new URL(window.location.href);
-        if (searchInput.value.trim()) {
-          nextUrl.searchParams.set("search", searchInput.value.trim());
-        } else {
-          nextUrl.searchParams.delete("search");
-        }
-        window.history.replaceState({}, "", nextUrl);
-        applySearch(searchInput.value);
-      });
-
-      searchInput.addEventListener("input", () => {
-        applySearch(searchInput.value);
-      });
-
-      clearButton?.addEventListener("click", () => {
-        searchInput.value = "";
-        const nextUrl = new URL(window.location.href);
-        nextUrl.searchParams.delete("search");
-        window.history.replaceState({}, "", nextUrl);
-        applySearch("");
-        searchInput.focus();
-      });
-    }
-
-    // ---- helpers ----------------------------------------------------------
-    async function api(path: string, method: string, body?: unknown): Promise<{ ok: boolean; data: any }> {
-      const response = await fetch(path, {
-        method,
-        headers: body ? { "content-type": "application/json" } : undefined,
-        body: body ? JSON.stringify(body) : undefined,
-      });
-      const data = await response.json().catch(() => ({}));
-      return { ok: response.ok, data };
-    }
-
-    function showFormError(form: HTMLElement, message: string) {
-      const region = form.querySelector("[data-form-error]");
-      if (!region) return;
-      region.textContent = message;
-      region.classList.remove("hidden");
-    }
-
-    function hideFormError(form: HTMLElement) {
-      form.querySelector("[data-form-error]")?.classList.add("hidden");
-    }
-
-    // ---- open/focus sidebar forms ----------------------------------------
-    const addBookmarkForm = document.querySelector<HTMLFormElement>("#add-bookmark-form");
-
-    for (const trigger of document.querySelectorAll<HTMLElement>("[data-open-form]")) {
-      trigger.addEventListener("click", () => {
-        const form = document.querySelector(trigger.dataset.openForm ?? "");
-        const input = document.querySelector(trigger.dataset.focusInput ?? "");
-        if (trigger.dataset.preselectCategory && addBookmarkForm) {
-          const select = addBookmarkForm.querySelector<HTMLSelectElement>('[name="category_id"]');
-          if (select) select.value = trigger.dataset.preselectCategory;
-        }
-        form?.scrollIntoView({ behavior: "smooth", block: "start" });
-        if (input instanceof HTMLElement) {
-          input.focus({ preventScroll: true });
-        }
-      });
-    }
-
-    // ---- add bookmark -----------------------------------------------------
-    addBookmarkForm?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      hideFormError(addBookmarkForm);
-      const fields = new FormData(addBookmarkForm);
-      const { ok, data } = await api("/api/bookmarks", "POST", {
-        title: fields.get("title"),
-        url: fields.get("url"),
-        categoryId: fields.get("category_id"),
-        description: fields.get("description") || undefined,
-      });
-      if (ok) {
-        window.location.reload();
-      } else {
-        showFormError(addBookmarkForm, data.error ?? "Could not save the bookmark.");
-      }
-    });
-
-    // ---- add category -----------------------------------------------------
-    const addCategoryForm = document.querySelector<HTMLFormElement>("#add-category-form");
-    addCategoryForm?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      hideFormError(addCategoryForm);
-      const fields = new FormData(addCategoryForm);
-      const { ok, data } = await api("/api/categories", "POST", { name: fields.get("name") });
-      if (ok) {
-        window.location.reload();
-      } else {
-        showFormError(addCategoryForm, data.error ?? "Could not create the category.");
-      }
-    });
-
-    // ---- bookmark card actions -------------------------------------------
-    const dialog = document.querySelector<HTMLDialogElement>("#edit-bookmark-dialog");
-    const editForm = document.querySelector<HTMLFormElement>("#edit-bookmark-form");
-
-    function field(form: HTMLFormElement, name: string) {
-      return form.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(`[name="${name}"]`)!;
-    }
-
-    for (const card of document.querySelectorAll<HTMLElement>("[data-bookmark-card]")) {
-      const id = card.dataset.id;
-      if (!id) continue;
-
-      card.querySelector("[data-edit-bookmark]")?.addEventListener("click", () => {
-        if (!dialog || !editForm) return;
-        hideFormError(editForm);
-        field(editForm, "id").value = id;
-        field(editForm, "title").value = card.dataset.title ?? "";
-        field(editForm, "url").value = card.dataset.url ?? "";
-        field(editForm, "category_id").value = card.dataset.categoryId ?? "";
-        field(editForm, "description").value = card.dataset.description ?? "";
-        (field(editForm, "is_favourite") as HTMLInputElement).checked = card.dataset.favourite === "1";
-        dialog.showModal();
-      });
-
-      card.querySelector("[data-delete-bookmark]")?.addEventListener("click", async () => {
-        if (!window.confirm(`Delete "${card.dataset.title}"?`)) return;
-        const { ok, data } = await api(`/api/bookmarks/${id}`, "DELETE");
-        if (ok) {
-          window.location.reload();
-        } else {
-          window.alert(data.error ?? "Could not delete the bookmark.");
-        }
-      });
-
-      for (const move of card.querySelectorAll<HTMLElement>("[data-move-bookmark]")) {
-        move.addEventListener("click", async () => {
-          const { ok, data } = await api("/api/bookmarks/reorder", "POST", {
-            id,
-            direction: move.dataset.moveBookmark,
-          });
-          if (ok) {
-            window.location.reload();
-          } else {
-            window.alert(data.error ?? "Could not move the bookmark.");
-          }
-        });
-      }
-    }
-
-    // ---- edit dialog ------------------------------------------------------
-    for (const close of document.querySelectorAll("[data-close-dialog]")) {
-      close.addEventListener("click", () => dialog?.close());
-    }
-
-    editForm?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      hideFormError(editForm);
-      const fields = new FormData(editForm);
-      const { ok, data } = await api(`/api/bookmarks/${fields.get("id")}`, "PUT", {
-        title: fields.get("title"),
-        url: fields.get("url"),
-        categoryId: fields.get("category_id"),
-        description: fields.get("description") || undefined,
-        isFavourite: fields.get("is_favourite") === "on",
-      });
-      if (ok) {
-        window.location.reload();
-      } else {
-        showFormError(editForm, data.error ?? "Could not save the bookmark.");
-      }
-    });
-
-    // ---- category actions -------------------------------------------------
-    for (const section of document.querySelectorAll<HTMLElement>("[data-category-section]")) {
-      const id = section.dataset.categoryId;
-      if (!id) continue;
-
-      section.querySelector("[data-collapse-category]")?.addEventListener("click", () => {
-        if (collapsedIds.has(id)) {
-          collapsedIds.delete(id);
-        } else {
-          collapsedIds.add(id);
-        }
-        localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...collapsedIds]));
-        const searching = searchInput instanceof HTMLInputElement && Boolean(searchInput.value.trim());
-        applyCollapsed(section, searching);
-      });
-
-      section.querySelector("[data-rename-category]")?.addEventListener("click", async () => {
-        const name = window.prompt("Rename category", section.dataset.categoryName ?? "");
-        if (!name?.trim() || name.trim() === section.dataset.categoryName) return;
-        const { ok, data } = await api(`/api/categories/${id}`, "PUT", { name });
-        if (ok) {
-          window.location.reload();
-        } else {
-          window.alert(data.error ?? "Could not rename the category.");
-        }
-      });
-
-      section.querySelector("[data-delete-category]")?.addEventListener("click", async () => {
-        const message = `Delete "${section.dataset.categoryName}"? Its bookmarks will move to Uncategorised.`;
-        if (!window.confirm(message)) return;
-        const { ok, data } = await api(`/api/categories/${id}`, "DELETE");
-        if (ok) {
-          window.location.reload();
-        } else {
-          window.alert(data.error ?? "Could not delete the category.");
-        }
-      });
-
-      for (const move of section.querySelectorAll<HTMLElement>("[data-move-category]")) {
-        move.addEventListener("click", async () => {
-          const { ok, data } = await api("/api/categories/reorder", "POST", {
-            id,
-            direction: move.dataset.moveCategory,
-          });
-          if (ok) {
-            window.location.reload();
-          } else {
-            window.alert(data.error ?? "Could not move the category.");
-          }
-        });
-      }
-    }
+    import "../scripts/dashboard";
   </script>
 </BaseLayout>

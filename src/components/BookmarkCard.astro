@@ -1,5 +1,5 @@
 ---
-import { ArrowDown, ArrowUp, Pencil, Star, Trash2 } from "@lucide/astro";
+import { ArrowDown, ArrowUp, Copy, Pencil, Star, Trash2 } from "@lucide/astro";
 import type { Bookmark } from "@lib/types";
 import { domainFromUrl } from "@lib/urlNormalize";
 
@@ -10,8 +10,9 @@ type Props = {
 };
 
 const { bookmark, compact = false, searchText = "" } = Astro.props;
-const domain = domainFromUrl(bookmark.url);
-const fallbackInitial = bookmark.title.trim().charAt(0).toUpperCase() || domain.charAt(0).toUpperCase();
+const domain = bookmark.url ? domainFromUrl(bookmark.url) : "";
+const fallbackInitial =
+  bookmark.title.trim().charAt(0).toUpperCase() || domain.charAt(0).toUpperCase();
 const searchableText = [bookmark.title, bookmark.url, bookmark.description ?? "", domain, searchText]
   .join(" ")
   .toLowerCase();
@@ -26,56 +27,113 @@ const searchableText = [bookmark.title, bookmark.url, bookmark.description ?? ""
   data-description={bookmark.description ?? ""}
   data-favourite={bookmark.isFavourite ? "1" : "0"}
   data-search={searchableText}
-  class="group relative rounded-md border border-[#dce3d8] bg-white p-3 shadow-[0_1px_0_rgba(23,32,27,0.03)] transition hover:-translate-y-0.5 hover:border-[#b8c7b3] hover:shadow-md"
+  draggable="true"
+  class="group relative rounded-lg border border-edge bg-surface p-3 shadow-card transition duration-150 ease-out hover:-translate-y-0.5 hover:border-edge-strong hover:shadow-md"
 >
   <div class="flex gap-3">
     <a
       href={bookmark.url}
       target="_blank"
       rel="noopener noreferrer"
+      data-card-link
       class="focus-ring flex min-w-0 flex-1 gap-3 rounded-md"
       aria-label={`Open ${bookmark.title}`}
     >
-      <span class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-md border border-[#dfe6da] bg-[#f3f6ef] text-sm font-semibold text-[#2f6f5e]">
-        {
-          bookmark.faviconUrl ? (
-            <img
-              src={bookmark.faviconUrl}
-              alt=""
-              class="h-5 w-5"
-              loading="lazy"
-              decoding="async"
-              data-fallback={fallbackInitial}
-              onerror="this.replaceWith(this.dataset.fallback)"
-            />
-          ) : (
-            fallbackInitial
-          )
-        }
+      <span
+        data-card-chip
+        class="favicon-well mt-0.5 grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-md border border-edge text-sm font-semibold text-accent"
+      >
+        <img
+          data-card-favicon
+          src={bookmark.faviconUrl ?? null}
+          alt=""
+          class:list={["h-5 w-5", !bookmark.faviconUrl && "hidden"]}
+          loading="lazy"
+          decoding="async"
+          referrerpolicy="no-referrer"
+        />
+        <span data-card-fallback class:list={[bookmark.faviconUrl && "hidden"]}>{fallbackInitial}</span>
       </span>
-      <span class="min-w-0">
-        <span class="flex items-center gap-1.5">
-          <span class="truncate text-sm font-semibold text-[#17201b]">{bookmark.title}</span>
-          {bookmark.isFavourite && <Star size={13} class="shrink-0 fill-[#d49b2a] text-[#d49b2a]" />}
+      <span data-card-text class="min-w-0 flex-1">
+        <span data-card-title-row class="flex min-w-0 items-center gap-1.5">
+          <span data-card-title class="truncate text-sm/5 font-medium text-ink" title={bookmark.title}
+            >{bookmark.title}</span
+          >
+          <Star
+            size={13}
+            data-card-star
+            class:list={["shrink-0 fill-star text-star", !bookmark.isFavourite && "hidden"]}
+          />
         </span>
-        <span class="mt-1 block truncate text-xs text-[#627166]">{domain}</span>
-        {!compact && bookmark.description && (
-          <span class="mt-2 line-clamp-2 block text-xs leading-5 text-[#526258]">{bookmark.description}</span>
+        <span data-card-domain class="mt-1 block truncate text-xs text-ink-faint">{domain}</span>
+        {!compact && (
+          <span
+            data-card-desc
+            class:list={[
+              "mt-2 line-clamp-2 block text-xs leading-5 text-ink-mute",
+              !bookmark.description && "hidden",
+            ]}>{bookmark.description ?? ""}</span
+          >
         )}
       </span>
     </a>
 
-    <div class="absolute right-1.5 top-1.5 flex items-center gap-0.5 rounded-md border border-[#e3e9df] bg-white/95 px-1 py-0.5 shadow-sm opacity-100 sm:opacity-0 sm:transition sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-      <button type="button" data-move-bookmark="up" class="focus-ring grid h-6 w-6 place-items-center rounded-md text-[#748176] hover:bg-[#edf2e9] hover:text-[#17201b]" title="Move bookmark up">
+    <div
+      class="absolute right-1.5 top-1.5 flex items-center gap-0.5 rounded-md border border-edge bg-surface/95 px-1 py-0.5 shadow-sm opacity-100 sm:opacity-0 sm:transition sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
+    >
+      <button
+        type="button"
+        data-favourite-toggle
+        class="focus-ring grid h-6 w-6 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink"
+        title="Toggle favourite (f)"
+        aria-label="Toggle favourite"
+        aria-pressed={bookmark.isFavourite ? "true" : "false"}
+      >
+        <Star size={13} />
+      </button>
+      <button
+        type="button"
+        data-copy-bookmark
+        class="focus-ring grid h-6 w-6 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink"
+        title="Copy URL"
+        aria-label="Copy URL"
+      >
+        <Copy size={13} />
+      </button>
+      <button
+        type="button"
+        data-move-bookmark="up"
+        class="focus-ring grid h-6 w-6 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink"
+        title="Move bookmark up"
+        aria-label="Move bookmark up"
+      >
         <ArrowUp size={13} />
       </button>
-      <button type="button" data-move-bookmark="down" class="focus-ring grid h-6 w-6 place-items-center rounded-md text-[#748176] hover:bg-[#edf2e9] hover:text-[#17201b]" title="Move bookmark down">
+      <button
+        type="button"
+        data-move-bookmark="down"
+        class="focus-ring grid h-6 w-6 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink"
+        title="Move bookmark down"
+        aria-label="Move bookmark down"
+      >
         <ArrowDown size={13} />
       </button>
-      <button type="button" data-edit-bookmark class="focus-ring grid h-6 w-6 place-items-center rounded-md text-[#748176] hover:bg-[#edf2e9] hover:text-[#17201b]" title="Edit bookmark">
+      <button
+        type="button"
+        data-edit-bookmark
+        class="focus-ring grid h-6 w-6 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink"
+        title="Edit bookmark (e)"
+        aria-label="Edit bookmark"
+      >
         <Pencil size={13} />
       </button>
-      <button type="button" data-delete-bookmark class="focus-ring grid h-6 w-6 place-items-center rounded-md text-[#9b4e47] hover:bg-[#faece8] hover:text-[#7f342e]" title="Delete bookmark">
+      <button
+        type="button"
+        data-delete-bookmark
+        class="focus-ring grid h-6 w-6 place-items-center rounded-md text-danger hover:bg-danger-soft hover:text-danger-strong"
+        title="Delete bookmark (Del)"
+        aria-label="Delete bookmark"
+      >
         <Trash2 size={13} />
       </button>
     </div>

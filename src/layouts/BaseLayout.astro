@@ -26,12 +26,34 @@ const pageTitle = title === productConfig.appName ? title : `${title} | ${produc
     <meta name="generator" content={Astro.generator} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href="/fonts/InterVariable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <title>{pageTitle}</title>
+    <script is:inline>
+      // Apply the saved theme before first paint to avoid a flash.
+      (() => {
+        let stored = null;
+        try {
+          stored = localStorage.getItem("linkshelf-theme");
+        } catch {}
+        const theme = stored === "light" || stored === "dark" ? stored : "system";
+        const dark =
+          theme === "dark" ||
+          (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
   </head>
-  <body class="min-h-screen bg-[#f7f8f3] text-[#17201b] antialiased">
+  <body class="min-h-screen bg-canvas text-ink antialiased">
     <slot />
   </body>
 </html>

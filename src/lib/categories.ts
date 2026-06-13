@@ -188,6 +188,30 @@ export async function deleteCategory(db: D1Database, userId: string, id: string)
   ]);
 }
 
+/** Persist an explicit ordering of all categories. */
+export async function reorderCategories(
+  db: D1Database,
+  userId: string,
+  orderedIds: string[],
+): Promise<void> {
+  const { results } = await db
+    .prepare("SELECT id FROM categories WHERE user_id = ?1")
+    .bind(userId)
+    .all<{ id: string }>();
+  const valid = new Set(results.map((row) => row.id));
+
+  const now = nowIso();
+  const statements = orderedIds
+    .filter((id) => valid.has(id))
+    .map((id, index) =>
+      db
+        .prepare("UPDATE categories SET sort_order = ?1, updated_at = ?2 WHERE user_id = ?3 AND id = ?4")
+        .bind((index + 1) * 10, now, userId, id),
+    );
+
+  if (statements.length) await db.batch(statements);
+}
+
 export async function moveCategory(
   db: D1Database,
   userId: string,

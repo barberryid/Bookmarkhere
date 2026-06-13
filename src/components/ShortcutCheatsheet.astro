@@ -1,0 +1,50 @@
+---
+import { X } from "@lucide/astro";
+
+const shortcuts: Array<[string, string]> = [
+  ["/", "Focus search"],
+  ["Ctrl / ⌘ + K", "Open command palette"],
+  ["↑ / ↓", "Move selection"],
+  ["Enter", "Open selected bookmark"],
+  ["⌘ + Enter", "Open and keep focus in results"],
+  ["e", "Edit selected bookmark"],
+  ["f", "Toggle favourite"],
+  ["Delete", "Delete selected (with undo)"],
+  ["a", "Add bookmark"],
+  ["c", "Add category"],
+  ["Esc", "Clear search / close overlay"],
+  ["?", "Show this cheat sheet"],
+];
+---
+
+<dialog
+  id="shortcut-cheatsheet"
+  class="m-auto w-[min(92vw,32rem)] rounded-lg border border-edge bg-surface p-0 text-ink shadow-pop"
+  aria-label="Keyboard shortcuts"
+>
+  <div class="p-5">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-ink">Keyboard Shortcuts</h2>
+      <button
+        type="button"
+        data-close-overlay
+        class="focus-ring grid h-8 w-8 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink"
+        aria-label="Close"
+      >
+        <X size={17} />
+      </button>
+    </div>
+    <dl class="grid gap-1.5">
+      {
+        shortcuts.map(([key, label]) => (
+          <div class="flex items-center justify-between gap-4 rounded-md px-2 py-1.5 odd:bg-surface-2">
+            <dt class="text-sm text-ink-mute">{label}</dt>
+            <dd>
+              <kbd class="rounded border border-edge bg-surface px-1.5 py-0.5 text-xs font-medium text-ink">{key}</kbd>
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</dialog>

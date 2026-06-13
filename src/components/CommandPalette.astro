@@ -1,0 +1,36 @@
+---
+import { Search } from "@lucide/astro";
+---
+
+<dialog
+  id="command-palette"
+  class="mx-auto mt-[18vh] mb-auto w-[min(92vw,40rem)] rounded-lg border border-edge bg-surface p-0 text-ink shadow-pop"
+  aria-label="Command palette"
+>
+  <div class="flex items-center gap-2 border-b border-edge px-4">
+    <Search size={18} class="shrink-0 text-ink-mute" />
+    <input
+      data-palette-input
+      type="text"
+      class="h-12 w-full bg-transparent text-base outline-none placeholder:text-ink-faint"
+      placeholder="Search bookmarks, or type > for commands"
+      autocomplete="off"
+      spellcheck="false"
+      role="combobox"
+      aria-expanded="true"
+      aria-controls="command-palette-list"
+    />
+  </div>
+  <ul
+    id="command-palette-list"
+    data-palette-list
+    role="listbox"
+    class="max-h-[50vh] overflow-y-auto p-2"
+  ></ul>
+  <div class="flex items-center gap-3 border-t border-edge px-4 py-2 text-xs text-ink-faint">
+    <span><kbd class="rounded border border-edge px-1">↑</kbd><kbd class="ml-0.5 rounded border border-edge px-1">↓</kbd> navigate</span>
+    <span><kbd class="rounded border border-edge px-1">↵</kbd> select</span>
+    <span><kbd class="rounded border border-edge px-1">⌘↵</kbd> edit</span>
+    <span><kbd class="rounded border border-edge px-1">esc</kbd> close</span>
+  </div>
+</dialog>

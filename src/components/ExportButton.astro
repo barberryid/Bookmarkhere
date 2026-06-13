@@ -11,7 +11,8 @@ const label = format === "json" ? "Export JSON" : "Export CSV";
 
 <a
   href={`/api/export/${format}`}
-  class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] shadow-sm transition hover:border-[#9eb19a] hover:bg-[#f6f9f2]"
+  data-export-link
+  class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-edge bg-surface px-3 text-sm font-medium text-ink-mute shadow-card transition hover:border-edge-strong hover:bg-surface-2 hover:text-ink"
 >
   <Download size={16} />
   {label}

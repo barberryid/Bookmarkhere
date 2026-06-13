@@ -1,5 +1,14 @@
 ---
-import { ArrowDown, ArrowUp, ChevronDown, Folder, Pencil, Plus, Trash2 } from "@lucide/astro";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  Folder,
+  GripVertical,
+  Pencil,
+  Plus,
+  Trash2,
+} from "@lucide/astro";
 import BookmarkCard from "@components/BookmarkCard.astro";
 import EmptyState from "@components/EmptyState.astro";
 import type { Bookmark, Category } from "@lib/types";
@@ -16,55 +25,66 @@ const { category, bookmarks } = Astro.props;
   data-category-section
   data-category-id={category.id}
   data-category-name={category.name}
-  class="rounded-md border border-[#dfe5da] bg-[#fbfcf7] p-4 shadow-sm"
+  id={`category-${category.id}`}
+  class="scroll-mt-32 rounded-lg border border-edge bg-surface-2 p-4 shadow-card"
 >
   <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
     <div class="flex min-w-0 items-center gap-2">
-      <span class="grid h-8 w-8 place-items-center rounded-md bg-[#e9f0e3] text-[#2f6f5e]">
+      <button
+        type="button"
+        data-category-grip
+        class="hidden cursor-grab touch-none text-ink-faint hover:text-ink-mute sm:block"
+        title="Drag to reorder category"
+        aria-label="Drag to reorder category"
+        draggable="true"
+      >
+        <GripVertical size={15} />
+      </button>
+      <span class="grid h-8 w-8 place-items-center rounded-md bg-accent-soft text-accent">
         <Folder size={17} />
       </span>
       <div class="min-w-0">
-        <h2 class="truncate text-base font-semibold text-[#17201b]">{category.name}</h2>
-        <p class="text-xs text-[#69776c]">{bookmarks.length} {bookmarks.length === 1 ? "bookmark" : "bookmarks"}</p>
+        <h2 data-category-title class="truncate text-base font-semibold text-ink">{category.name}</h2>
+        <p data-category-count data-total={bookmarks.length} class="text-xs text-ink-mute tabular-nums">
+          {bookmarks.length} {bookmarks.length === 1 ? "bookmark" : "bookmarks"}
+        </p>
       </div>
     </div>
 
     <div class="flex items-center gap-1">
-      <button type="button" data-collapse-category aria-expanded="true" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Collapse or expand category">
+      <button type="button" data-collapse-category aria-expanded="true" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Collapse or expand category" aria-label="Collapse or expand category">
         <ChevronDown size={15} class="transition-transform" />
       </button>
-      <button type="button" data-move-category="up" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Move category up">
+      <button type="button" data-move-category="up" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Move category up" aria-label="Move category up">
         <ArrowUp size={14} />
       </button>
-      <button type="button" data-move-category="down" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Move category down">
+      <button type="button" data-move-category="down" class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Move category down" aria-label="Move category down">
         <ArrowDown size={14} />
       </button>
-      <button type="button" data-open-form="#add-bookmark-form" data-focus-input="#bookmark-title-input" data-preselect-category={category.id} class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Add bookmark to category">
+      <button type="button" data-add-to-category={category.id} class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Add bookmark to category" aria-label="Add bookmark to category">
         <Plus size={15} />
       </button>
-      <button type="button" data-rename-category class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#dfe5da] bg-white text-[#617068] hover:border-[#b8c7b3]" title="Rename category">
+      <button type="button" data-rename-category class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-edge bg-surface text-ink-mute hover:border-edge-strong" title="Rename category" aria-label="Rename category">
         <Pencil size={14} />
       </button>
-      <button type="button" data-delete-category class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-[#efd8d4] bg-white text-[#9b4e47] hover:border-[#e9aaa0] hover:bg-[#fff7f4]" title="Delete category">
+      <button type="button" data-delete-category class="focus-ring grid h-8 w-8 place-items-center rounded-md border border-danger/30 bg-surface text-danger hover:border-danger/60 hover:bg-danger-soft" title="Delete category" aria-label="Delete category">
         <Trash2 size={14} />
       </button>
     </div>
   </div>
 
   <div data-category-body>
-    {
-      bookmarks.length ? (
-        <div class="grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {bookmarks.map((bookmark) => <BookmarkCard bookmark={bookmark} searchText={category.name} />)}
-        </div>
-        <div data-category-empty class="hidden">
-          <EmptyState title="No bookmarks here yet." message="Add a bookmark or move one into this category." compact />
-        </div>
-      ) : (
-        <div data-category-empty>
-          <EmptyState title="No bookmarks here yet." message="Add a bookmark or move one into this category." compact />
-        </div>
-      )
-    }
+    <div
+      data-category-grid
+      class:list={[
+        "grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
+        !bookmarks.length && "hidden",
+      ]}
+    >
+      {bookmarks.map((bookmark) => <BookmarkCard bookmark={bookmark} searchText={category.name} />)}
+    </div>
+    <div data-category-empty class:list={[bookmarks.length && "hidden"]}>
+      <EmptyState title="No bookmarks here yet." message="Add a bookmark or move one into this category." compact />
+    </div>
   </div>
 </section>

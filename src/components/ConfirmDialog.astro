@@ -1,25 +1,44 @@
 ---
-import { Trash2, TriangleAlert, X } from "@lucide/astro";
+import { TriangleAlert, X } from "@lucide/astro";
 ---
 
-<div class="rounded-md border border-[#ead1cc] bg-[#fffaf8] p-4 shadow-sm">
-  <div class="flex items-start gap-3">
-    <span class="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[#faece8] text-[#9b4e47]">
-      <TriangleAlert size={18} />
-    </span>
-    <div class="min-w-0 flex-1">
-      <h2 class="text-base font-semibold text-[#17201b]">Confirm Delete</h2>
-      <p class="mt-1 text-sm leading-6 text-[#66746a]">Deleting a category will move its bookmarks to Uncategorised in the working version.</p>
-      <div class="mt-3 flex gap-2">
-        <button type="button" class="focus-ring inline-flex h-9 items-center gap-2 rounded-md bg-[#9b4e47] px-3 text-sm font-semibold text-white hover:bg-[#833d37]">
-          <Trash2 size={15} />
-          Delete
-        </button>
-        <button type="button" class="focus-ring inline-flex h-9 items-center gap-2 rounded-md border border-[#cfd8ca] bg-white px-3 text-sm font-semibold text-[#34443b] hover:bg-[#f6f9f2]">
-          <X size={15} />
-          Cancel
-        </button>
+<dialog
+  id="confirm-dialog"
+  class="m-auto w-[min(92vw,440px)] rounded-lg border border-edge bg-surface p-0 text-ink shadow-pop"
+>
+  <div class="p-5">
+    <div class="flex items-start gap-3">
+      <span class="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-danger-soft text-danger">
+        <TriangleAlert size={18} />
+      </span>
+      <div class="min-w-0 flex-1">
+        <h2 data-confirm-title class="text-base font-semibold text-ink">Are you sure?</h2>
+        <p data-confirm-message class="mt-1 text-sm leading-6 text-ink-mute"></p>
       </div>
+      <button
+        type="button"
+        data-confirm-cancel
+        class="focus-ring grid h-8 w-8 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink"
+        aria-label="Close"
+      >
+        <X size={17} />
+      </button>
+    </div>
+    <div class="mt-4 flex justify-end gap-2">
+      <button
+        type="button"
+        data-confirm-cancel
+        class="focus-ring inline-flex h-9 items-center gap-2 rounded-md border border-edge bg-surface px-3 text-sm font-medium text-ink-mute hover:bg-surface-2"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        data-confirm-accept
+        class="focus-ring inline-flex h-9 items-center gap-2 rounded-md bg-danger px-3 text-sm font-semibold text-accent-ink hover:bg-danger-strong"
+      >
+        Delete
+      </button>
     </div>
   </div>
-</div>
+</dialog>

@@ -1,0 +1,107 @@
+---
+import { LoaderCircle, Save, X } from "@lucide/astro";
+import type { Category } from "@lib/types";
+
+type Props = {
+  categories: Category[];
+};
+
+const { categories } = Astro.props;
+---
+
+<dialog
+  id="bookmark-dialog"
+  class="m-auto w-[min(92vw,480px)] rounded-lg border border-edge bg-surface p-0 text-ink shadow-pop"
+>
+  <form id="bookmark-dialog-form" method="dialog" novalidate>
+    <div class="p-5">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <h2 data-dialog-title class="text-base font-semibold text-ink">Add Bookmark</h2>
+        <button
+          type="button"
+          data-close-dialog
+          class="focus-ring grid h-8 w-8 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink"
+          aria-label="Close"
+        >
+          <X size={17} />
+        </button>
+      </div>
+
+      <input type="hidden" name="id" />
+      <div class="grid gap-3">
+        <label class="grid gap-1 text-sm font-medium text-ink">
+          URL
+          <input
+            name="url"
+            required
+            inputmode="url"
+            class="focus-ring h-10 rounded-md border border-edge-strong bg-surface px-3 font-normal"
+            placeholder="https://example.com"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </label>
+        <p
+          data-duplicate-warning
+          class="hidden rounded-md border border-warn/40 bg-warn-soft px-3 py-2 text-sm text-warn"
+        >
+          <span data-duplicate-text></span>
+          <a data-duplicate-link href="#" class="font-semibold underline">Go to it</a>
+        </p>
+        <label class="relative grid gap-1 text-sm font-medium text-ink">
+          Title
+          <input
+            name="title"
+            required
+            class="focus-ring h-10 rounded-md border border-edge-strong bg-surface px-3 pr-9 font-normal"
+            placeholder="Fetched automatically from the URL"
+            autocomplete="off"
+          />
+          <span data-title-spinner class="absolute bottom-2.5 right-2.5 hidden text-ink-faint" aria-hidden="true">
+            <LoaderCircle size={18} class="animate-spin" />
+          </span>
+        </label>
+        <label class="grid gap-1 text-sm font-medium text-ink">
+          Category
+          <select
+            name="category_id"
+            data-category-select
+            class="focus-ring h-10 rounded-md border border-edge-strong bg-surface px-3 font-normal"
+          >
+            {categories.map((category) => <option value={category.id}>{category.name}</option>)}
+          </select>
+        </label>
+        <label class="grid gap-1 text-sm font-medium text-ink">
+          Description
+          <textarea
+            name="description"
+            class="focus-ring min-h-20 rounded-md border border-edge-strong bg-surface px-3 py-2 font-normal"
+            placeholder="Optional note"></textarea>
+        </label>
+        <label class="flex items-center gap-2 text-sm font-medium text-ink">
+          <input type="checkbox" name="is_favourite" class="focus-ring h-4 w-4 rounded border-edge-strong accent-accent" />
+          Favourite
+        </label>
+      </div>
+
+      <p class="mt-3 hidden rounded-md border border-warn/40 bg-warn-soft px-3 py-2 text-sm text-warn" data-form-error></p>
+
+      <div class="mt-4 flex justify-end gap-2">
+        <button
+          type="button"
+          data-close-dialog
+          class="focus-ring inline-flex h-10 items-center gap-2 rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink-mute hover:bg-surface-2"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-accent-ink hover:bg-accent-strong"
+        >
+          <Save size={15} />
+          <span data-dialog-submit-label>Add</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</dialog>

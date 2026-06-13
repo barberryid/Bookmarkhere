@@ -6,7 +6,7 @@ type Props = {
   placeholder?: string;
 };
 
-const { value = "", placeholder = "Search title, URL, description, or category" } = Astro.props;
+const { value = "", placeholder = "Search title, URL, description, category, or tag" } = Astro.props;
 ---
 
 <form class="relative w-full" role="search">
@@ -17,7 +17,7 @@ const { value = "", placeholder = "Search title, URL, description, or category" 
     name="search"
     value={value}
     placeholder={placeholder}
-    class="focus-ring h-12 w-full rounded-md border border-edge-strong bg-surface pl-12 pr-12 text-base shadow-card transition placeholder:text-ink-faint focus:border-accent"
+    class="search-field focus-ring h-12 w-full rounded-lg border border-edge-strong bg-surface pl-12 pr-12 text-base shadow-card outline-none transition placeholder:text-ink-faint"
     autocomplete="off"
   />
   <button

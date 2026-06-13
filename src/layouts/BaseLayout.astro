@@ -39,16 +39,14 @@ const pageTitle = title === productConfig.appName ? title : `${title} | ${produc
     <title>{pageTitle}</title>
     <script is:inline>
       // Apply the saved theme before first paint to avoid a flash.
+      // Default is dark (the premium vault look) unless the user chose light.
       (() => {
-        let stored = null;
+        let light = false;
         try {
-          stored = localStorage.getItem("linkshelf-theme");
+          light = localStorage.getItem("linkshelf-theme") === "light";
         } catch {}
-        const theme = stored === "light" || stored === "dark" ? stored : "system";
-        const dark =
-          theme === "dark" ||
-          (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-        document.documentElement.classList.toggle("dark", dark);
+        const theme = light ? "light" : "dark";
+        document.documentElement.classList.toggle("dark", theme === "dark");
         document.documentElement.dataset.theme = theme;
       })();
     </script>

@@ -1,6 +1,7 @@
 import { applyAllCollapsed } from "./collapse";
 import { initDensity } from "./density";
 import { initDragDrop } from "./dragdrop";
+import { initDrawer } from "./drawer";
 import { initFaviconFallback, refreshAllCounts } from "./dom";
 import { hydrateCards } from "./hydrate";
 import { initMutations } from "./mutations";
@@ -22,6 +23,7 @@ function init(): void {
   initPalette();
   initRail();
   initDragDrop();
+  initDrawer();
 
   // Cheat-sheet + palette close buttons.
   document.addEventListener("click", (event) => {

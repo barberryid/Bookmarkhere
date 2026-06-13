@@ -201,9 +201,9 @@ export function refreshTotals(): void {
   const visible = mainCards.filter((card) => !card.classList.contains("hidden")).length;
 
   const visibleCount = $("[data-visible-count]");
-  if (visibleCount) visibleCount.textContent = String(visible);
+  if (visibleCount) visibleCount.textContent = visible.toLocaleString();
   const totalCount = $("[data-total-count]");
-  if (totalCount) totalCount.textContent = String(mainCards.length);
+  if (totalCount) totalCount.textContent = mainCards.length.toLocaleString();
   const categoryTotal = $("[data-category-total]");
   if (categoryTotal) {
     // Exclude the empty hide-when-empty bucket (Uncategorised) regardless of
@@ -215,8 +215,10 @@ export function refreshTotals(): void {
           (gridFor(section)?.children.length ?? 0) === 0
         ),
     );
-    categoryTotal.textContent = String(real.length);
+    categoryTotal.textContent = real.length.toLocaleString();
   }
+  // Show "· N matching" only while searching.
+  $("[data-search-summary]")?.classList.toggle("hidden", !isSearching());
 }
 
 /**

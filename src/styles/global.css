@@ -13,40 +13,50 @@
     "InterVariable", "Inter", ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", sans-serif;
 
+  /* === Light = warm premium (default values; .dark overrides below) === */
   /* Surfaces */
-  --color-canvas: oklch(0.98 0.005 120); /* page background */
-  --color-surface: oklch(1 0 0); /* cards, panels */
-  --color-surface-2: oklch(0.965 0.006 120); /* section background, hover fills */
+  --color-canvas: #f6f3ec; /* page background */
+  --color-surface: #fffdf7; /* cards, panels */
+  --color-surface-2: #f1eadc; /* section background, hover fills */
 
   /* Borders */
-  --color-edge: oklch(0.9 0.01 120);
-  --color-edge-strong: oklch(0.82 0.015 120);
+  --color-edge: rgba(32, 45, 56, 0.1);
+  --color-edge-strong: rgba(32, 45, 56, 0.18);
 
   /* Text */
-  --color-ink: oklch(0.22 0.01 150);
-  --color-ink-mute: oklch(0.5 0.015 150);
-  --color-ink-faint: oklch(0.62 0.01 150);
+  --color-ink: #17202a;
+  --color-ink-mute: #4e5c68;
+  --color-ink-faint: #7c8790;
 
-  /* Accent — sage/forest green identity, rationed */
-  --color-accent: oklch(0.48 0.07 165);
-  --color-accent-strong: oklch(0.42 0.08 165);
-  --color-accent-soft: oklch(0.95 0.02 150);
-  --color-accent-ink: oklch(1 0 0); /* text on accent fills */
+  /* Accent — antique gold */
+  --color-accent: #7a5b22;
+  --color-accent-strong: #5f4717;
+  --color-accent-soft: rgba(122, 91, 34, 0.12);
+  --color-accent-ink: #fffaf0; /* text on accent fills */
+
+  /* Top-level category identities */
+  --color-cat-blue: #356fa8;
+  --color-cat-green: #2f735d;
+  --color-cat-purple: #7359b8;
+  --color-cat-rose: #a64f68;
+  --color-cat-orange: #a4672d;
 
   /* Status */
-  --color-danger: oklch(0.5 0.12 25);
-  --color-danger-strong: oklch(0.42 0.12 25);
-  --color-danger-soft: oklch(0.96 0.02 25);
-  --color-warn: oklch(0.45 0.09 70);
-  --color-warn-soft: oklch(0.97 0.02 80);
+  --color-danger: #b84a50;
+  --color-danger-strong: #97393f;
+  --color-danger-soft: rgba(184, 74, 80, 0.12);
+  --color-warn: #a76d20;
+  --color-warn-soft: rgba(167, 109, 32, 0.12);
 
-  /* Favourite star stays amber in both themes */
-  --color-star: oklch(0.72 0.13 80);
+  /* Favourite star stays amber/gold in both themes */
+  --color-star: #a76d20;
+
+  /* Premium gold CTA gradient (same in both themes) */
+  --grad-vault: linear-gradient(135deg, #d6b56d, #9f7d35);
 
   /* Shadows */
-  --shadow-card: 0 1px 0 oklch(0.22 0.01 150 / 0.04);
-  --shadow-pop:
-    0 8px 24px oklch(0.22 0.01 150 / 0.12), 0 2px 6px oklch(0.22 0.01 150 / 0.08);
+  --shadow-card: 0 1px 0 rgba(50, 44, 35, 0.04);
+  --shadow-pop: 0 14px 34px rgba(50, 44, 35, 0.12);
 }
 
 @layer base {
@@ -58,34 +68,40 @@
   .dark {
     color-scheme: dark;
 
-    /* Desaturated near-black with a hint of the green hue */
-    --color-canvas: oklch(0.17 0.008 150);
-    --color-surface: oklch(0.21 0.01 150);
-    --color-surface-2: oklch(0.255 0.012 150);
+    /* Dark premium knowledge vault — near-black with warm ink + gold */
+    --color-canvas: #090d11;
+    --color-surface: #121922;
+    --color-surface-2: #151d25;
 
-    --color-edge: oklch(0.31 0.012 150);
-    --color-edge-strong: oklch(0.4 0.015 150);
+    --color-edge: rgba(255, 255, 255, 0.08);
+    --color-edge-strong: rgba(255, 255, 255, 0.14);
 
-    --color-ink: oklch(0.93 0.005 150);
-    --color-ink-mute: oklch(0.73 0.012 150);
-    --color-ink-faint: oklch(0.62 0.012 150);
+    --color-ink: #f3f0e8;
+    --color-ink-mute: #b7c0c8;
+    --color-ink-faint: #7f8b96;
 
-    --color-accent: oklch(0.74 0.1 165);
-    --color-accent-strong: oklch(0.8 0.1 165);
-    --color-accent-soft: oklch(0.31 0.035 165);
-    --color-accent-ink: oklch(0.18 0.02 165);
+    --color-accent: #d6b56d;
+    --color-accent-strong: #e3c581;
+    --color-accent-soft: rgba(214, 181, 109, 0.16);
+    --color-accent-ink: #14110a;
 
-    --color-danger: oklch(0.7 0.14 25);
-    --color-danger-strong: oklch(0.76 0.14 25);
-    --color-danger-soft: oklch(0.29 0.05 25);
-    --color-warn: oklch(0.78 0.11 80);
-    --color-warn-soft: oklch(0.29 0.045 80);
+    --color-cat-blue: #4d8fd6;
+    --color-cat-green: #3f8f74;
+    --color-cat-purple: #8e72d6;
+    --color-cat-rose: #c9708a;
+    --color-cat-orange: #c98a4a;
 
-    --color-star: oklch(0.78 0.13 80);
+    --color-danger: #e06c75;
+    --color-danger-strong: #ef7f88;
+    --color-danger-soft: rgba(224, 108, 117, 0.16);
+    --color-warn: #e5b567;
+    --color-warn-soft: rgba(229, 181, 103, 0.16);
 
-    /* Dark mode relies on borders, not shadows */
+    --color-star: #e5b567;
+
+    /* Dark mode leans on borders + soft shadow, not hairlines */
     --shadow-card: 0 0 0 0 transparent;
-    --shadow-pop: 0 0 0 1px oklch(0.31 0.012 150), 0 8px 24px oklch(0 0 0 / 0.4);
+    --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 
   html {
@@ -98,6 +114,12 @@
   body {
     margin: 0;
     min-width: 320px;
+    /* Subtle vault ambience — fixed so it doesn't scroll with content. */
+    background:
+      radial-gradient(circle at 0% 0%, var(--color-accent-soft), transparent 34rem),
+      radial-gradient(circle at 100% 0%, var(--color-accent-soft), transparent 30rem);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
 
   button,
@@ -129,6 +151,29 @@ html[data-theme="system"] .theme-icon-system {
 
 .focus-ring:focus-visible {
   outline-color: var(--color-accent);
+}
+
+/* Premium gold CTA — used for the primary "Add Bookmark" action. */
+.btn-vault {
+  background: var(--grad-vault);
+  color: #14110a;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-weight: 700;
+  transition:
+    filter 130ms ease,
+    transform 130ms ease;
+}
+.btn-vault:hover {
+  filter: brightness(1.06);
+}
+.btn-vault:active {
+  transform: translateY(0.5px);
+}
+
+/* Premium search focus glow. */
+.search-field:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
 
 /* Favicon chip keeps a light well in dark mode so dark-transparent favicons stay visible */
@@ -216,6 +261,37 @@ mark.search-hit {
   font-size: 0.7rem;
   line-height: 1;
   transition: transform 150ms ease;
+}
+.rail-dot {
+  display: inline-block;
+  height: 0.5rem;
+  width: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+}
+
+/* Mobile category drawer. Position is controlled entirely here (own transform)
+   to avoid fighting Tailwind's translate utility. */
+.rail-aside {
+  transform: translateX(-100%);
+}
+.rail-aside.is-open {
+  transform: translateX(0);
+  box-shadow: var(--shadow-pop);
+}
+@media (min-width: 1024px) {
+  .rail-aside {
+    transform: none;
+  }
+}
+.rail-backdrop {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.rail-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
 }
 .rail-collection.rail-collapsed .rail-caret {
   transform: rotate(-90deg);

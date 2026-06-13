@@ -1,5 +1,5 @@
 ---
-import { FileUp, LayoutGrid, List, Plus, Star } from "@lucide/astro";
+import { FileUp, LayoutGrid, List, PanelLeft, Plus, Star, X } from "@lucide/astro";
 import BookmarkCard from "@components/BookmarkCard.astro";
 import BookmarkDialog from "@components/BookmarkDialog.astro";
 import CategorySection from "@components/CategorySection.astro";
@@ -101,19 +101,19 @@ const emptyCategory: Category = {
   >
     <section class="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-balance text-2xl font-semibold tracking-normal text-ink">My Bookmarks</h1>
-        <p class="mt-1 text-sm text-ink-mute">
-          <span data-visible-count class="tabular-nums">{totalBookmarks}</span> visible of
-          <span data-total-count class="tabular-nums">{totalBookmarks}</span> bookmarks across
-          <span data-category-total class="tabular-nums">{totalCategories}</span> categories.
+        <h1 class="text-balance text-3xl font-bold tracking-tight text-ink">My Bookmark Vault</h1>
+        <p class="mt-1.5 text-sm text-ink-mute">
+          <span data-total-count class="font-medium tabular-nums text-ink">{totalBookmarks.toLocaleString()}</span> saved links across
+          <span data-category-total class="font-medium tabular-nums text-ink">{totalCategories.toLocaleString()}</span> categories<span data-search-summary class="hidden"> · <span data-visible-count class="tabular-nums">{totalBookmarks}</span> matching</span>
         </p>
+        <p class="mt-0.5 text-sm text-ink-faint">Search, organise, and maintain your saved web.</p>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
         <button
           type="button"
           data-open-add-bookmark
-          class="focus-ring inline-flex h-10 items-center gap-2 rounded-md bg-accent px-3 text-sm font-semibold text-accent-ink shadow-sm hover:bg-accent-strong"
+          class="btn-vault focus-ring inline-flex h-10 items-center gap-2 rounded-md px-3.5 text-sm shadow-sm"
         >
           <Plus size={16} />
           Add Bookmark
@@ -141,7 +141,19 @@ const emptyCategory: Category = {
     </section>
 
     <section class="sticky top-0 z-20 -mx-4 border-y border-edge bg-canvas/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-      <SearchBar />
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          data-rail-toggle
+          class="focus-ring grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-edge-strong bg-surface text-ink-mute shadow-card hover:text-ink lg:hidden"
+          aria-label="Browse categories"
+        >
+          <PanelLeft size={18} />
+        </button>
+        <div class="min-w-0 flex-1">
+          <SearchBar />
+        </div>
+      </div>
     </section>
 
     {
@@ -161,13 +173,27 @@ const emptyCategory: Category = {
         </div>
       ) : (
         <div class="mt-6 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-          <aside class="hidden lg:block">
+          <div data-rail-backdrop class="rail-backdrop fixed inset-0 z-30 bg-black/50 lg:hidden"></div>
+          <aside
+            data-rail-aside
+            class="rail-aside fixed inset-y-0 left-0 z-40 w-72 max-w-[82vw] overflow-y-auto border-r border-edge bg-surface p-4 transition-transform duration-200 lg:static lg:z-auto lg:w-auto lg:max-w-none lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0"
+          >
             <nav
               data-category-rail
               aria-label="Categories"
-              class="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pr-1 text-sm"
+              class="lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:pr-1 text-sm"
             >
-              <p class="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Categories</p>
+              <div class="mb-2 flex items-center justify-between px-2">
+                <p class="text-xs font-semibold uppercase tracking-wide text-ink-faint">Categories</p>
+                <button
+                  type="button"
+                  data-rail-close
+                  class="focus-ring grid h-7 w-7 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink lg:hidden"
+                  aria-label="Close categories"
+                >
+                  <X size={16} />
+                </button>
+              </div>
               <div data-rail-list class="grid gap-0.5" />
             </nav>
           </aside>

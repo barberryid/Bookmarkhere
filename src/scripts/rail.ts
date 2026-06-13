@@ -1,5 +1,6 @@
 import { $, $$, allSections, gridFor, splitCollection } from "./dom";
 import { expandSection, isCollectionCollapsed, toggleCollectionCollapsedByName } from "./collapse";
+import { collectionStyle } from "../lib/collections";
 
 let observer: IntersectionObserver | null = null;
 
@@ -106,6 +107,11 @@ function collectionHeader(name: string, count: number): HTMLElement {
   caret.setAttribute("aria-hidden", "true");
   caret.textContent = "▾";
 
+  const dot = document.createElement("span");
+  dot.className = "rail-dot";
+  dot.setAttribute("aria-hidden", "true");
+  dot.style.background = `var(${collectionStyle(name).colorVar})`;
+
   const nameEl = document.createElement("span");
   nameEl.className = "rail-name flex-1";
   nameEl.textContent = name;
@@ -114,7 +120,7 @@ function collectionHeader(name: string, count: number): HTMLElement {
   countEl.className = "rail-count";
   countEl.textContent = String(count);
 
-  button.append(caret, nameEl, countEl);
+  button.append(caret, dot, nameEl, countEl);
   button.addEventListener("click", () => toggleCollectionCollapsedByName(name));
   return button;
 }

@@ -1,5 +1,5 @@
 ---
-import { Archive, LayoutDashboard, Monitor, Moon, Plus, Sun } from "@lucide/astro";
+import { LayoutDashboard, Moon, Plus, Sun, Vault } from "@lucide/astro";
 import { productConfig } from "@lib/config";
 
 type Props = {
@@ -9,13 +9,13 @@ type Props = {
 const { active = "home" } = Astro.props;
 ---
 
-<header class="border-b border-edge bg-surface/90 backdrop-blur">
-  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-    <a href="/" class="focus-ring flex items-center gap-2 rounded-md" aria-label={`${productConfig.appName} home`}>
-      <span class="grid h-9 w-9 place-items-center rounded-lg border border-edge bg-accent-soft text-accent">
-        <Archive size={19} stroke-width={2.2} />
+<header class="border-b border-edge bg-surface/80 backdrop-blur-xl">
+  <div class="mx-auto flex max-w-[100rem] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+    <a href="/" class="focus-ring flex items-center gap-2.5 rounded-md" aria-label={`${productConfig.appName} home`}>
+      <span class="grid h-9 w-9 place-items-center rounded-lg text-accent-ink shadow-sm" style="background: var(--grad-vault)">
+        <Vault size={19} stroke-width={2.1} />
       </span>
-      <span class="text-lg font-semibold tracking-normal">{productConfig.appName}</span>
+      <span class="text-lg font-semibold tracking-tight">{productConfig.appName}</span>
     </a>
 
     <nav class="flex items-center gap-2" aria-label="Primary">
@@ -36,7 +36,7 @@ const { active = "home" } = Astro.props;
           <button
             type="button"
             data-open-add-bookmark
-            class="focus-ring hidden h-9 items-center gap-2 rounded-md bg-accent px-3 text-sm font-medium text-accent-ink shadow-sm transition hover:bg-accent-strong sm:inline-flex"
+            class="btn-vault focus-ring hidden h-9 items-center gap-2 rounded-md px-3 text-sm shadow-sm sm:inline-flex"
             title="Add bookmark (a)"
           >
             <Plus size={16} />
@@ -45,7 +45,7 @@ const { active = "home" } = Astro.props;
         ) : (
           <a
             href="/dashboard"
-            class="focus-ring hidden h-9 items-center gap-2 rounded-md bg-accent px-3 text-sm font-medium text-accent-ink shadow-sm transition hover:bg-accent-strong sm:inline-flex"
+            class="btn-vault focus-ring hidden h-9 items-center gap-2 rounded-md px-3 text-sm shadow-sm sm:inline-flex"
             title="Add bookmark"
           >
             <Plus size={16} />
@@ -61,7 +61,6 @@ const { active = "home" } = Astro.props;
       >
         <Sun size={16} class="theme-icon theme-icon-light" />
         <Moon size={16} class="theme-icon theme-icon-dark" />
-        <Monitor size={16} class="theme-icon theme-icon-system" />
       </button>
     </nav>
   </div>

@@ -1,5 +1,15 @@
-import { applyCollapsed } from "./collapse";
-import { $, $$, allSections, gridFor, refreshFavourites, refreshSection, refreshTotals } from "./dom";
+import { applyCollapsed, applyCollectionCollapsed } from "./collapse";
+import {
+  $,
+  $$,
+  allCollections,
+  allSections,
+  gridFor,
+  refreshCollections,
+  refreshFavourites,
+  refreshSection,
+  refreshTotals,
+} from "./dom";
 import { state } from "./state";
 
 const DEBOUNCE_MS = 80;
@@ -99,6 +109,10 @@ export function applySearch(rawValue: string): void {
     refreshSection(section);
     applyCollapsed(section);
   }
+
+  // Reveal collapsed collections while searching, then hide empty ones.
+  for (const collection of allCollections()) applyCollectionCollapsed(collection);
+  refreshCollections();
 
   // The Favourites strip duplicates cards, so it sits out of search entirely.
   refreshFavourites();

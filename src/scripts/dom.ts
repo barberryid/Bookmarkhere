@@ -43,6 +43,17 @@ export function allSections(): HTMLElement[] {
   return $$("[data-category-section]");
 }
 
+export function allCollections(): HTMLElement[] {
+  return $$("[data-collection]");
+}
+
+/** Split a "Collection / Category" name on the first " / ". */
+export function splitCollection(name: string): { collection: string | null; short: string } {
+  const idx = name.indexOf(" / ");
+  if (idx === -1) return { collection: null, short: name };
+  return { collection: name.slice(0, idx), short: name.slice(idx + 3) };
+}
+
 /** Every copy of a bookmark card (main + the Favourites mirror). */
 export function cardsById(id: string): HTMLElement[] {
   return $$(`[data-bookmark-card][data-id="${CSS.escape(id)}"]`);
@@ -192,8 +203,36 @@ export function refreshTotals(): void {
   if (categoryTotal) categoryTotal.textContent = String(allSections().length);
 }
 
+/**
+ * Hide a collection whose categories are all hidden (during search), and keep
+ * its count badge in sync. Returns nothing; safe to call any time.
+ */
+export function refreshCollections(): void {
+  for (const collection of allCollections()) {
+    const sections = $$("[data-category-section]", collection);
+    const visibleSections = sections.filter((s) => !s.classList.contains("hidden"));
+    collection.classList.toggle("hidden", sections.length > 0 && visibleSections.length === 0);
+
+    const badge = $("[data-collection-count]", collection);
+    if (badge) {
+      const cats = visibleSections.length;
+      let total = 0;
+      for (const section of visibleSections) {
+        const grid = gridFor(section);
+        if (grid) {
+          total += $$("[data-bookmark-card]", grid).filter(
+            (c) => !c.classList.contains("hidden"),
+          ).length;
+        }
+      }
+      badge.textContent = `${cats} ${cats === 1 ? "category" : "categories"} · ${total}`;
+    }
+  }
+}
+
 export function refreshAllCounts(): void {
   for (const section of allSections()) refreshSection(section);
+  refreshCollections();
   refreshFavourites();
   refreshTotals();
 }

@@ -19,6 +19,12 @@ type Props = {
   /** Header count when cards are hydrated client-side (deferred). */
   count?: number;
   /**
+   * Short name shown in the heading when the category sits inside a collection
+   * group (e.g. "SQL" instead of "Work / SQL"). data-category-name keeps the
+   * full name so the API and search still use it.
+   */
+  displayName?: string;
+  /**
    * When true, render an empty grid shell (no cards, no empty state). The
    * client fills the grid from the embedded bookmark JSON. Keeps the
    * server-rendered HTML small enough to stay within Worker limits.
@@ -28,6 +34,7 @@ type Props = {
 
 const { category, bookmarks = [], deferred = false } = Astro.props;
 const count = Astro.props.count ?? bookmarks.length;
+const displayName = Astro.props.displayName ?? category.name;
 ---
 
 <section
@@ -53,7 +60,7 @@ const count = Astro.props.count ?? bookmarks.length;
         <Folder size={17} />
       </span>
       <div class="min-w-0">
-        <h2 data-category-title class="truncate text-base font-semibold text-ink">{category.name}</h2>
+        <h2 data-category-title class="truncate text-base font-semibold text-ink">{displayName}</h2>
         <p data-category-count data-total={count} class="text-xs text-ink-mute tabular-nums">
           {count} {count === 1 ? "bookmark" : "bookmarks"}
         </p>

@@ -1,0 +1,49 @@
+---
+import { ChevronDown, Layers } from "@lucide/astro";
+import CategorySection from "@components/CategorySection.astro";
+import type { Category } from "@lib/types";
+
+type Props = {
+  name: string;
+  slug: string;
+  count: number;
+  categories: Array<{ category: Category; short: string; count: number }>;
+};
+
+const { name, slug, count, categories } = Astro.props;
+---
+
+<section
+  data-collection
+  data-collection-name={name}
+  id={`collection-${slug}`}
+  class="scroll-mt-32 rounded-xl border border-edge bg-canvas/40 p-3 sm:p-4"
+>
+  <header class="mb-3 flex items-center gap-2">
+    <button
+      type="button"
+      data-collapse-collection
+      aria-expanded="true"
+      class="focus-ring grid h-8 w-8 shrink-0 place-items-center rounded-md text-ink-mute hover:bg-surface-2 hover:text-ink"
+      title="Collapse or expand collection"
+      aria-label="Collapse or expand collection"
+    >
+      <ChevronDown size={18} class="transition-transform" />
+    </button>
+    <span class="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-accent text-accent-ink">
+      <Layers size={17} />
+    </span>
+    <h2 class="min-w-0 truncate text-lg font-semibold tracking-tight text-ink">{name}</h2>
+    <span data-collection-count class="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-xs font-medium text-ink-mute tabular-nums">
+      {categories.length} {categories.length === 1 ? "category" : "categories"} · {count}
+    </span>
+  </header>
+
+  <div data-collection-body class="grid gap-4">
+    {
+      categories.map(({ category, short, count }) => (
+        <CategorySection category={category} displayName={short} count={count} deferred />
+      ))
+    }
+  </div>
+</section>

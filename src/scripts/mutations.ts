@@ -1,5 +1,5 @@
 import { api } from "./api";
-import { toggleCollapsed } from "./collapse";
+import { toggleCollapsed, toggleCollectionCollapsed } from "./collapse";
 import { confirmDanger } from "./confirm";
 import {
   $,
@@ -18,6 +18,7 @@ import {
   refreshTotals,
   renderCard,
   sectionFor,
+  splitCollection,
   type CardData,
 } from "./dom";
 import { applySearch } from "./search";
@@ -486,9 +487,14 @@ function startInlineRename(section: HTMLElement): void {
   const heading = $("[data-category-title]", section);
   if (!heading || heading.querySelector("input")) return;
 
-  const original = section.dataset.categoryName ?? heading.textContent ?? "";
+  // Inside a collection the heading shows the short name; keep the collection
+  // prefix so saving rebuilds the full "Collection / Category" name.
+  const fullName = section.dataset.categoryName ?? heading.textContent ?? "";
+  const { collection, short } = splitCollection(fullName);
+  const shortText = $("[data-category-title]", section)?.textContent ?? short;
+
   const input = document.createElement("input");
-  input.value = original;
+  input.value = shortText;
   input.className =
     "focus-ring h-8 w-56 max-w-full rounded-md border border-edge-strong bg-surface px-2 text-base font-semibold";
   input.setAttribute("aria-label", "Category name");
@@ -504,11 +510,12 @@ function startInlineRename(section: HTMLElement): void {
 
   const commit = async () => {
     if (finished) return;
-    const name = input.value.trim();
-    if (!name || name === original) {
-      restore(original);
+    const nextShort = input.value.trim();
+    if (!nextShort || nextShort === shortText) {
+      restore(shortText);
       return;
     }
+    const name = collection ? `${collection} / ${nextShort}` : nextShort;
     finished = true;
     const id = section.dataset.categoryId ?? "";
     const { ok, data } = await api<{ category?: { name: string } }>(
@@ -517,13 +524,14 @@ function startInlineRename(section: HTMLElement): void {
       { name },
     );
     if (!ok) {
-      restore(original);
+      restore(shortText);
       toast(data.error ?? "Could not rename the category.", { kind: "error" });
       return;
     }
     const finalName = data.category?.name ?? name;
     section.dataset.categoryName = finalName;
-    heading.replaceChildren(document.createTextNode(finalName));
+    const finalShort = splitCollection(finalName).short;
+    heading.replaceChildren(document.createTextNode(finalShort));
     renameCategoryOption(id, finalName);
     reindexSectionCards(section);
     announceDomChange();
@@ -535,7 +543,7 @@ function startInlineRename(section: HTMLElement): void {
       void commit();
     } else if (event.key === "Escape") {
       event.stopPropagation();
-      restore(original);
+      restore(shortText);
     }
   });
   input.addEventListener("blur", () => void commit());
@@ -764,6 +772,12 @@ export function initMutations(): void {
         void moveBookmarkCard(card, button.dataset.moveBookmark === "up" ? "up" : "down");
       else if (button.matches("[data-edit-bookmark]")) openBookmarkDialog("edit", cardData(card));
       else if (button.matches("[data-delete-bookmark]")) void deleteBookmarkCard(card);
+      return;
+    }
+
+    const collection = target.closest<HTMLElement>("[data-collection]");
+    if (collection && button.matches("[data-collapse-collection]")) {
+      toggleCollectionCollapsed(collection);
       return;
     }
 

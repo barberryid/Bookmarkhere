@@ -3,6 +3,7 @@ import { FileUp, LayoutGrid, List, Plus, Star } from "@lucide/astro";
 import BookmarkCard from "@components/BookmarkCard.astro";
 import BookmarkDialog from "@components/BookmarkDialog.astro";
 import CategorySection from "@components/CategorySection.astro";
+import CollectionGroup from "@components/CollectionGroup.astro";
 import CommandPalette from "@components/CommandPalette.astro";
 import ConfirmDialog from "@components/ConfirmDialog.astro";
 import EmptyState from "@components/EmptyState.astro";
@@ -15,6 +16,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import { getPrivateUserId } from "@lib/auth";
 import { listBookmarks } from "@lib/bookmarks";
 import { listCategories } from "@lib/categories";
+import { groupByCollection } from "@lib/collections";
 import { getDb, uncategorisedCategoryId } from "@lib/db";
 import type { Bookmark, Category } from "@lib/types";
 
@@ -39,6 +41,8 @@ const countByCategory = new Map<string, number>();
 for (const bookmark of bookmarks) {
   countByCategory.set(bookmark.categoryId, (countByCategory.get(bookmark.categoryId) ?? 0) + 1);
 }
+
+const collectionGroups = groupByCollection(categories, countByCategory);
 
 const favouriteCount = bookmarks.filter((bookmark) => bookmark.isFavourite).length;
 
@@ -188,12 +192,26 @@ const emptyCategory: Category = {
             </section>
 
             <div data-sections-container class="grid content-start gap-5">
-              {categories.map((category) => (
-                <CategorySection
-                  category={category}
-                  count={countByCategory.get(category.id) ?? 0}
-                  deferred
-                />
+              {collectionGroups.map((group) => (
+                <Fragment>
+                  {group.collection && (
+                    <CollectionGroup
+                      name={group.collection}
+                      slug={group.slug}
+                      count={group.count}
+                      categories={group.categories}
+                    />
+                  )}
+                  {!group.collection &&
+                    group.categories.map((entry) => (
+                      <CategorySection
+                        category={entry.category}
+                        displayName={entry.short}
+                        count={entry.count}
+                        deferred
+                      />
+                    ))}
+                </Fragment>
               ))}
 
               <div data-new-category-row class="flex items-center">

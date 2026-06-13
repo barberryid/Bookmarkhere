@@ -97,7 +97,14 @@ export function initDragDrop(): void {
       const overSection = (event.target as HTMLElement).closest<HTMLElement>(
         "[data-category-section]",
       );
-      if (!overSection || overSection.closest("[data-favourites]") || overSection === draggingSection)
+      // Categories only reorder within their own collection (or among the
+      // ungrouped sections) — a section's parent defines its collection.
+      if (
+        !overSection ||
+        overSection.closest("[data-favourites]") ||
+        overSection === draggingSection ||
+        overSection.parentElement !== draggingSection.parentElement
+      )
         return;
       event.preventDefault();
       clearIndicators();
@@ -158,7 +165,12 @@ export function initDragDrop(): void {
       const overSection = (event.target as HTMLElement).closest<HTMLElement>(
         "[data-category-section]",
       );
-      if (!overSection || overSection.closest("[data-favourites]") || overSection === draggingSection)
+      if (
+        !overSection ||
+        overSection.closest("[data-favourites]") ||
+        overSection === draggingSection ||
+        overSection.parentElement !== draggingSection.parentElement
+      )
         return;
       event.preventDefault();
       const after = event.clientY > overSection.getBoundingClientRect().top + overSection.offsetHeight / 2;

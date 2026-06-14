@@ -27,7 +27,7 @@ const TOP_LEVEL_ORDER = [
   "Luxembourg Life & Admin",
   "Work & Data",
   "Travel Tools & Booking",
-  "Destinations by Region",
+  "Destinations by Continent",
   "Websites, AI & Projects",
   "Photography & Visual Ideas",
   "Health, Fitness & Gear",

@@ -1,5 +1,5 @@
 ---
-import { ChevronsDownUp, ChevronsUpDown, FileUp, LayoutGrid, List, PanelLeft, Plus, Sparkles, Star, X } from "@lucide/astro";
+import { ChevronDown, ChevronsDownUp, ChevronsUpDown, FileUp, LayoutGrid, List, PanelLeft, Plus, Sparkles, Star, X } from "@lucide/astro";
 import BookmarkCard from "@components/BookmarkCard.astro";
 import BookmarkDialog from "@components/BookmarkDialog.astro";
 import CategorySection from "@components/CategorySection.astro";
@@ -227,21 +227,31 @@ const emptyCategory: Category = {
                 mostUsedIds.length === 0 && "hidden",
               ]}
             >
-              <div class="mb-3 flex items-center gap-2">
-                <span
-                  class="grid h-8 w-8 place-items-center rounded-md"
-                  style="color: var(--cat); background: color-mix(in srgb, var(--cat) 16%, transparent)"
+              <h2 class="contents">
+                <button
+                  type="button"
+                  data-collapse-most-used
+                  aria-expanded="true"
+                  class="focus-ring -m-1 mb-2 flex w-full items-center gap-2 rounded-md p-1 text-left hover:bg-surface/50"
                 >
-                  <Sparkles size={16} />
-                </span>
-                <div>
-                  <h2 class="text-base font-semibold text-ink">Most Used</h2>
-                  <p data-most-used-count class="text-xs text-ink-mute tabular-nums">
-                    {mostUsedIds.length} {mostUsedIds.length === 1 ? "bookmark" : "bookmarks"}
-                  </p>
-                </div>
+                  <ChevronDown size={16} class="shrink-0 text-ink-faint transition-transform" />
+                  <span
+                    class="grid h-8 w-8 shrink-0 place-items-center rounded-md"
+                    style="color: var(--cat); background: color-mix(in srgb, var(--cat) 16%, transparent)"
+                  >
+                    <Sparkles size={16} />
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-base font-semibold text-ink">Most Used</span>
+                    <span data-most-used-count class="block text-xs text-ink-mute tabular-nums">
+                      {mostUsedIds.length} {mostUsedIds.length === 1 ? "bookmark" : "bookmarks"}
+                    </span>
+                  </span>
+                </button>
+              </h2>
+              <div data-most-used-body>
+                <div data-category-grid class="grid grid-cols-1 gap-0" />
               </div>
-              <div data-category-grid class="grid grid-cols-1 gap-0" />
             </section>
 
             <section

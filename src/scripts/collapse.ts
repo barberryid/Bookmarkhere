@@ -3,6 +3,7 @@ import { isSearching } from "./state";
 
 const COLLAPSE_KEY = "linkshelf-collapsed-categories";
 const COLLECTION_COLLAPSE_KEY = "linkshelf-collapsed-collections";
+const MOST_USED_COLLAPSE_KEY = "linkshelf-most-used-collapsed";
 
 function readStored(key: string): string | null {
   try {
@@ -200,4 +201,33 @@ export function toggleCollectionCollapsedByName(name: string): void {
   document.dispatchEvent(
     new CustomEvent("linkshelf:collectioncollapse", { detail: { name } }),
   );
+}
+
+// ---- Most Used strip collapse (singleton, default expanded) ----------------
+
+let mostUsedCollapsed = readStored(MOST_USED_COLLAPSE_KEY) === "1";
+
+export function applyMostUsedCollapsed(): void {
+  const section = $("[data-most-used]");
+  if (!section) return;
+  section.toggleAttribute("data-collapsed", mostUsedCollapsed);
+  $("[data-most-used-body]", section)?.classList.toggle("hidden", mostUsedCollapsed);
+  const toggle = $("[data-collapse-most-used]", section);
+  toggle?.setAttribute("aria-expanded", String(!mostUsedCollapsed));
+  toggle?.querySelector("svg")?.classList.toggle("-rotate-90", mostUsedCollapsed);
+}
+
+/** Apply the stored state and wire the Most Used disclosure toggle. */
+export function initMostUsedCollapse(): void {
+  applyMostUsedCollapsed();
+  document.addEventListener("click", (event) => {
+    if (!(event.target as HTMLElement).closest("[data-collapse-most-used]")) return;
+    mostUsedCollapsed = !mostUsedCollapsed;
+    try {
+      localStorage.setItem(MOST_USED_COLLAPSE_KEY, mostUsedCollapsed ? "1" : "0");
+    } catch {
+      // storage unavailable
+    }
+    applyMostUsedCollapsed();
+  });
 }

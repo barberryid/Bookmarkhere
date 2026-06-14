@@ -1,5 +1,5 @@
 ---
-import { FileUp, LayoutGrid, List, PanelLeft, Plus, Star, X } from "@lucide/astro";
+import { ChevronsDownUp, ChevronsUpDown, FileUp, LayoutGrid, List, PanelLeft, Plus, Star, X } from "@lucide/astro";
 import BookmarkCard from "@components/BookmarkCard.astro";
 import BookmarkDialog from "@components/BookmarkDialog.astro";
 import CategorySection from "@components/CategorySection.astro";
@@ -127,6 +127,17 @@ const emptyCategory: Category = {
         </a>
         <ExportButton format="json" />
         <ExportButton format="csv" />
+        <button
+          type="button"
+          data-collapse-all
+          aria-pressed="true"
+          class="focus-ring grid h-10 w-10 place-items-center rounded-md border border-edge bg-surface text-ink-mute shadow-card hover:border-edge-strong hover:text-ink"
+          title="Collapse all"
+          aria-label="Collapse all categories"
+        >
+          <ChevronsDownUp size={16} class="collapse-all-fold" />
+          <ChevronsUpDown size={16} class="collapse-all-unfold hidden" />
+        </button>
         <button
           type="button"
           data-density-toggle

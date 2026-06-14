@@ -105,6 +105,33 @@ export function applyAllCollapsed(): void {
   for (const collection of allCollections()) applyCollectionCollapsed(collection);
 }
 
+/** Collapse every collection (level 1) and every category (level 2) at once. */
+export function collapseAll(): void {
+  for (const section of allSections()) {
+    if (section.closest("[data-favourites]")) continue;
+    collapsedIds.add(section.dataset.categoryId ?? "");
+  }
+  for (const collection of allCollections()) {
+    collapsedCollections.add(collection.dataset.collectionName ?? "");
+  }
+  persist();
+  persistCollections();
+  applyAllCollapsed();
+  // Keep the rail's fold carets in sync with the bulk change.
+  document.dispatchEvent(new CustomEvent("linkshelf:collectioncollapse", { detail: { name: "" } }));
+}
+
+/**
+ * Expand every collection (level 1) so all category rows are revealed. Leaves
+ * the categories (level 2) collapsed so we don't render thousands of cards.
+ */
+export function expandAllCollections(): void {
+  collapsedCollections.clear();
+  persistCollections();
+  applyAllCollapsed();
+  document.dispatchEvent(new CustomEvent("linkshelf:collectioncollapse", { detail: { name: "" } }));
+}
+
 // ---- collection-level collapse --------------------------------------------
 
 const rawCollapsedCollections = readStored(COLLECTION_COLLAPSE_KEY);

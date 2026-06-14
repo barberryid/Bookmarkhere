@@ -1,4 +1,5 @@
 import { applyAllCollapsed, seedCollapsedDefaults } from "./collapse";
+import { initCollapseAll } from "./collapseAll";
 import { initDensity } from "./density";
 import { initDragDrop } from "./dragdrop";
 import { initDrawer } from "./drawer";
@@ -18,6 +19,7 @@ function init(): void {
   initMutations();
   seedCollapsedDefaults();
   applyAllCollapsed();
+  initCollapseAll();
   refreshAllCounts();
   initSearch();
   initShortcuts();

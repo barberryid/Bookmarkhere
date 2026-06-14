@@ -40,6 +40,11 @@
   --color-cat-purple: #7359b8;
   --color-cat-rose: #a64f68;
   --color-cat-orange: #a4672d;
+  --color-cat-cyan: #2a8597;
+  --color-cat-amber: #b3801f;
+  --color-cat-violet: #5d54cc;
+  --color-cat-slate: #5f6b78;
+  --color-cat-gold: #9f7d35;
 
   /* Status */
   --color-danger: #b84a50;
@@ -90,6 +95,11 @@
     --color-cat-purple: #8e72d6;
     --color-cat-rose: #c9708a;
     --color-cat-orange: #c98a4a;
+    --color-cat-cyan: #4fb3c6;
+    --color-cat-amber: #d9a64a;
+    --color-cat-violet: #8a7be6;
+    --color-cat-slate: #8b97a6;
+    --color-cat-gold: #d6b56d;
 
     --color-danger: #e06c75;
     --color-danger-strong: #ef7f88;

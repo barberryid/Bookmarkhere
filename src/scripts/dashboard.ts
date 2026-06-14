@@ -10,6 +10,7 @@ import { initPalette } from "./palette";
 import { initRail } from "./rail";
 import { initSearch } from "./search";
 import { initShortcuts } from "./shortcuts";
+import { initTracking } from "./tracking";
 
 function init(): void {
   initFaviconFallback();
@@ -27,6 +28,7 @@ function init(): void {
   initRail();
   initDragDrop();
   initDrawer();
+  initTracking();
 
   // Cheat-sheet + palette close buttons.
   document.addEventListener("click", (event) => {

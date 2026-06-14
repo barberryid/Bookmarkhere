@@ -192,6 +192,17 @@ export function refreshFavourites(): void {
   if (count) count.textContent = `${total} ${total === 1 ? "bookmark" : "bookmarks"}`;
 }
 
+/** Refresh the Most Used strip visibility (hidden when empty or searching). */
+export function refreshMostUsed(): void {
+  const section = $("[data-most-used]");
+  if (!section) return;
+  const grid = gridFor(section);
+  const total = grid?.children.length ?? 0;
+  section.classList.toggle("hidden", total === 0 || isSearching());
+  const count = $("[data-most-used-count]", section);
+  if (count) count.textContent = `${total} ${total === 1 ? "bookmark" : "bookmarks"}`;
+}
+
 /** Refresh the header totals line. */
 export function refreshTotals(): void {
   const mainCards = allSections().flatMap((section) => {
@@ -252,6 +263,7 @@ export function refreshAllCounts(): void {
   for (const section of allSections()) refreshSection(section);
   refreshCollections();
   refreshFavourites();
+  refreshMostUsed();
   refreshTotals();
 }
 

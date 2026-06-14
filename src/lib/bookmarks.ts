@@ -292,3 +292,36 @@ export async function moveBookmark(
       .bind(current.sort_order, now, userId, neighbor.id),
   ]);
 }
+
+/**
+ * Record that a bookmark was opened from the app: bump the headline counters
+ * and append an event row so 30/90-day visit windows can be computed for the
+ * generated "Most Used" section. Best-effort; returns false if the bookmark
+ * doesn't belong to the user.
+ */
+export async function recordOpen(
+  db: D1Database,
+  userId: string,
+  id: string,
+): Promise<boolean> {
+  const exists = await db
+    .prepare("SELECT id FROM bookmarks WHERE user_id = ?1 AND id = ?2")
+    .bind(userId, id)
+    .first<{ id: string }>();
+  if (!exists) return false;
+
+  const now = nowIso();
+  await db.batch([
+    db
+      .prepare(
+        "UPDATE bookmarks SET open_count = open_count + 1, last_opened_at = ?1 WHERE user_id = ?2 AND id = ?3",
+      )
+      .bind(now, userId, id),
+    db
+      .prepare(
+        "INSERT INTO bookmark_opens (id, user_id, bookmark_id, opened_at) VALUES (?1, ?2, ?3, ?4)",
+      )
+      .bind(newId("open"), userId, id, now),
+  ]);
+  return true;
+}

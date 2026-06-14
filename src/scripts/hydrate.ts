@@ -49,6 +49,9 @@ export function hydrateCards(): void {
   // Append into each grid via one fragment per category to limit reflow.
   const fragments = new Map<string, DocumentFragment>();
   const favourites: CardData[] = [];
+  // Keep data + category name per id so the Most Used strip can be rebuilt in
+  // its server-supplied ranked order.
+  const byId = new Map<string, { data: CardData; name: string }>();
 
   for (const item of raw) {
     const data: CardData = {
@@ -60,6 +63,7 @@ export function hydrateCards(): void {
       isFavourite: item.f === 1,
     };
     const name = nameByCategory.get(item.c) ?? "";
+    byId.set(data.id, { data, name });
     let fragment = fragments.get(item.c);
     if (!fragment) {
       fragment = document.createDocumentFragment();
@@ -86,8 +90,37 @@ export function hydrateCards(): void {
     favGrid.append(favFragment);
   }
 
+  // Most Used strip: a server-ranked, ordered list of bookmark ids (generated,
+  // not a stored category). Build its cards in rank order.
+  hydrateMostUsed(byId);
+
   refreshAllCounts();
 
   // The payload is large; drop it once consumed to free memory.
   dataEl.remove();
+}
+
+function hydrateMostUsed(byId: Map<string, { data: CardData; name: string }>): void {
+  const section = $("[data-most-used]");
+  const grid = section ? gridFor(section) : null;
+  if (!grid) return;
+
+  const dataEl = document.getElementById("most-used-data");
+  let ids: string[] = [];
+  if (dataEl?.textContent) {
+    try {
+      ids = JSON.parse(dataEl.textContent) as string[];
+    } catch {
+      ids = [];
+    }
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const id of ids) {
+    const entry = byId.get(id);
+    if (!entry) continue; // bookmark may have been filtered/removed
+    fragment.append(renderCard(entry.data, entry.name));
+  }
+  grid.append(fragment);
+  dataEl?.remove();
 }

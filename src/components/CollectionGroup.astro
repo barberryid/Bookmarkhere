@@ -1,5 +1,5 @@
 ---
-import { Archive, BookOpen, Briefcase, Camera, ChevronDown, Layers, Map } from "@lucide/astro";
+import { Activity, Archive, BookOpen, Briefcase, Camera, ChevronDown, Code, Database, Globe, Layers, Map, Newspaper, Plane, Shield } from "@lucide/astro";
 import CategorySection from "@components/CategorySection.astro";
 import { collectionStyle } from "@lib/collections";
 import type { Category } from "@lib/types";
@@ -14,7 +14,7 @@ type Props = {
 const { name, slug, count, categories } = Astro.props;
 const style = collectionStyle(name);
 
-const ICONS = { Archive, BookOpen, Briefcase, Camera, Layers, Map } as const;
+const ICONS = { Activity, Archive, BookOpen, Briefcase, Camera, Code, Database, Globe, Layers, Map, Newspaper, Plane, Shield } as const;
 const Icon = ICONS[style.icon as keyof typeof ICONS] ?? Layers;
 ---
 

@@ -1,5 +1,5 @@
 ---
-import { ChevronsDownUp, ChevronsUpDown, FileUp, LayoutGrid, List, PanelLeft, Plus, Star, X } from "@lucide/astro";
+import { ChevronsDownUp, ChevronsUpDown, FileUp, LayoutGrid, List, PanelLeft, Plus, Sparkles, Star, X } from "@lucide/astro";
 import BookmarkCard from "@components/BookmarkCard.astro";
 import BookmarkDialog from "@components/BookmarkDialog.astro";
 import CategorySection from "@components/CategorySection.astro";
@@ -18,6 +18,7 @@ import { listBookmarks } from "@lib/bookmarks";
 import { listCategories } from "@lib/categories";
 import { groupByCollection } from "@lib/collections";
 import { getDb, uncategorisedCategoryId } from "@lib/db";
+import { loadUsage, rankMostUsed } from "@lib/mostUsed";
 import type { Bookmark, Category } from "@lib/types";
 
 export const prerender = false;
@@ -45,6 +46,12 @@ for (const bookmark of bookmarks) {
 const collectionGroups = groupByCollection(categories, countByCategory);
 
 const favouriteCount = bookmarks.filter((bookmark) => bookmark.isFavourite).length;
+
+// "Most Used" is generated, not a stored category: rank favourites + tracked
+// opens server-side (cheap — just ids) and let the client build those cards.
+const usage = await loadUsage(db, userId);
+const mostUsedIds = rankMostUsed(bookmarks, usage);
+const mostUsedJson = JSON.stringify(mostUsedIds).replace(/</g, "\\u003c");
 
 // Cards are built on the client from this compact payload. Rendering 2,000+
 // cards server-side blows the Worker CPU/memory budget (Error 1102); a JSON
@@ -211,6 +218,33 @@ const emptyCategory: Category = {
 
           <div class="grid content-start gap-5">
             <section
+              data-most-used
+              id="most-used"
+              data-density="compact"
+              style="--cat: var(--color-cat-gold); border-left-color: var(--cat)"
+              class:list={[
+                "scroll-mt-32 rounded-lg border border-edge border-l-[3px] bg-surface-2 p-4 shadow-card",
+                mostUsedIds.length === 0 && "hidden",
+              ]}
+            >
+              <div class="mb-3 flex items-center gap-2">
+                <span
+                  class="grid h-8 w-8 place-items-center rounded-md"
+                  style="color: var(--cat); background: color-mix(in srgb, var(--cat) 16%, transparent)"
+                >
+                  <Sparkles size={16} />
+                </span>
+                <div>
+                  <h2 class="text-base font-semibold text-ink">Most Used</h2>
+                  <p data-most-used-count class="text-xs text-ink-mute tabular-nums">
+                    {mostUsedIds.length} {mostUsedIds.length === 1 ? "bookmark" : "bookmarks"}
+                  </p>
+                </div>
+              </div>
+              <div data-category-grid class="grid grid-cols-1 gap-0" />
+            </section>
+
+            <section
               data-favourites
               id="favourites"
               data-density="compact"
@@ -343,6 +377,9 @@ const emptyCategory: Category = {
 
   <!-- Compact bookmark payload; cards are hydrated client-side from this. -->
   <script id="bookmark-data" type="application/json" set:html={bookmarkJson}></script>
+
+  <!-- Ordered ids for the generated Most Used section (highest score first). -->
+  <script id="most-used-data" type="application/json" set:html={mostUsedJson}></script>
 
   <script>
     import "../scripts/dashboard";

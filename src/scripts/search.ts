@@ -7,6 +7,7 @@ import {
   gridFor,
   refreshCollections,
   refreshFavourites,
+  refreshMostUsed,
   refreshSection,
   refreshTotals,
 } from "./dom";
@@ -114,8 +115,10 @@ export function applySearch(rawValue: string): void {
   for (const collection of allCollections()) applyCollectionCollapsed(collection);
   refreshCollections();
 
-  // The Favourites strip duplicates cards, so it sits out of search entirely.
+  // The Favourites + Most Used strips duplicate cards, so they sit out of
+  // search entirely.
   refreshFavourites();
+  refreshMostUsed();
   refreshTotals();
 
   const noResults = $("[data-search-empty]");

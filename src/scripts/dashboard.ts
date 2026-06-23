@@ -1,4 +1,4 @@
-import { applyAllCollapsed, initMostUsedCollapse, seedCollapsedDefaults } from "./collapse";
+import { applyAllCollapsed, initFavouritesCollapse, initMostUsedCollapse, seedCollapsedDefaults } from "./collapse";
 import { initCollapseAll } from "./collapseAll";
 import { initDensity } from "./density";
 import { initDragDrop } from "./dragdrop";
@@ -30,6 +30,7 @@ function init(): void {
   initDrawer();
   initTracking();
   initMostUsedCollapse();
+  initFavouritesCollapse();
 
   // Cheat-sheet + palette close buttons.
   document.addEventListener("click", (event) => {

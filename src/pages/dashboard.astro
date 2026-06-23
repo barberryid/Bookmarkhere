@@ -263,18 +263,28 @@ const emptyCategory: Category = {
                 favouriteCount === 0 && "hidden",
               ]}
             >
-              <div class="mb-3 flex items-center gap-2">
-                <span class="grid h-8 w-8 place-items-center rounded-md bg-accent-soft text-star">
-                  <Star size={16} class="fill-star" />
-                </span>
-                <div>
-                  <h2 class="text-base font-semibold text-ink">Favourites</h2>
-                  <p data-favourites-count class="text-xs text-ink-mute tabular-nums">
-                    {favouriteCount} {favouriteCount === 1 ? "bookmark" : "bookmarks"}
-                  </p>
-                </div>
+              <h2 class="contents">
+                <button
+                  type="button"
+                  data-collapse-favourites
+                  aria-expanded="true"
+                  class="focus-ring -m-1 mb-2 flex w-full items-center gap-2 rounded-md p-1 text-left hover:bg-surface/50"
+                >
+                  <ChevronDown size={16} class="shrink-0 text-ink-faint transition-transform" />
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-accent-soft text-star">
+                    <Star size={16} class="fill-star" />
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-base font-semibold text-ink">Favourites</span>
+                    <span data-favourites-count class="block text-xs text-ink-mute tabular-nums">
+                      {favouriteCount} {favouriteCount === 1 ? "bookmark" : "bookmarks"}
+                    </span>
+                  </span>
+                </button>
+              </h2>
+              <div data-favourites-body>
+                <div data-category-grid class="grid grid-cols-1 gap-0" />
               </div>
-              <div data-category-grid class="grid grid-cols-1 gap-0" />
             </section>
 
             <div data-sections-container class="category-board">

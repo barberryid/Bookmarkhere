@@ -231,3 +231,34 @@ export function initMostUsedCollapse(): void {
     applyMostUsedCollapsed();
   });
 }
+
+// ---- Favourites strip collapse (singleton, default expanded) ---------------
+
+const FAVOURITES_COLLAPSE_KEY = "linkshelf-favourites-collapsed";
+
+let favouritesCollapsed = readStored(FAVOURITES_COLLAPSE_KEY) === "1";
+
+export function applyFavouritesCollapsed(): void {
+  const section = $("[data-favourites]");
+  if (!section) return;
+  section.toggleAttribute("data-collapsed", favouritesCollapsed);
+  $("[data-favourites-body]", section)?.classList.toggle("hidden", favouritesCollapsed);
+  const toggle = $("[data-collapse-favourites]", section);
+  toggle?.setAttribute("aria-expanded", String(!favouritesCollapsed));
+  toggle?.querySelector("svg")?.classList.toggle("-rotate-90", favouritesCollapsed);
+}
+
+/** Apply the stored state and wire the Favourites disclosure toggle. */
+export function initFavouritesCollapse(): void {
+  applyFavouritesCollapsed();
+  document.addEventListener("click", (event) => {
+    if (!(event.target as HTMLElement).closest("[data-collapse-favourites]")) return;
+    favouritesCollapsed = !favouritesCollapsed;
+    try {
+      localStorage.setItem(FAVOURITES_COLLAPSE_KEY, favouritesCollapsed ? "1" : "0");
+    } catch {
+      // storage unavailable
+    }
+    applyFavouritesCollapsed();
+  });
+}

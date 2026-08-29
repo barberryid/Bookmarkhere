@@ -12,7 +12,14 @@ function sectionCount(section: HTMLElement): number {
   return gridFor(section)?.children.length ?? 0;
 }
 
+function hideSpecialPanels(): void {
+  for (const panel of $$<HTMLElement>("[data-favourites], [data-most-used]")) {
+    panel.classList.add("rail-only");
+  }
+}
+
 function showInMainPanel(section: HTMLElement): void {
+  hideSpecialPanels();
   section.classList.remove("rail-only");
   section.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -95,6 +102,7 @@ function build(): void {
             sectionCount(section),
             true,
             () => {
+              hideSpecialPanels();
               expandSection(section);
               section.scrollIntoView({ behavior: "smooth", block: "start" });
             },
@@ -114,6 +122,7 @@ function build(): void {
           sectionCount(node),
           false,
           () => {
+            hideSpecialPanels();
             expandSection(node);
             node.scrollIntoView({ behavior: "smooth", block: "start" });
           },
@@ -158,7 +167,10 @@ function collectionHeader(name: string, count: number): HTMLElement {
   countEl.textContent = String(count);
 
   button.append(caret, dot, nameEl, countEl);
-  button.addEventListener("click", () => toggleCollectionCollapsedByName(name));
+  button.addEventListener("click", () => {
+    hideSpecialPanels();
+    toggleCollectionCollapsedByName(name);
+  });
   return button;
 }
 

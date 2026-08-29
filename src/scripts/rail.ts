@@ -37,7 +37,8 @@ function build(): void {
 
   list.replaceChildren();
 
-  // Favourites pseudo-entry first.
+  // Generated sections are pseudo-categories, so they belong at the top of
+  // the rail before the stored category tree.
   const favourites = $("[data-favourites]");
   if (favourites && !favourites.classList.contains("hidden")) {
     const grid = gridFor(favourites);
@@ -50,6 +51,22 @@ function build(): void {
         () => favourites.scrollIntoView({ behavior: "smooth", block: "start" }),
         undefined,
         "favourites",
+      ),
+    );
+  }
+
+  const mostUsed = $("[data-most-used]");
+  if (mostUsed && !mostUsed.classList.contains("hidden")) {
+    const grid = gridFor(mostUsed);
+    list.append(
+      categoryLink(
+        "most-used-section",
+        "✦ Most Used",
+        grid?.children.length ?? 0,
+        false,
+        () => mostUsed.scrollIntoView({ behavior: "smooth", block: "start" }),
+        undefined,
+        "most-used",
       ),
     );
   }

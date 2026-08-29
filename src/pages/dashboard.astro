@@ -219,12 +219,11 @@ const emptyCategory: Category = {
           <div class="grid content-start gap-5">
             <section
               data-most-used
-              data-rail-only
               id="most-used"
               data-density="compact"
               style="--cat: var(--color-cat-gold); border-left-color: var(--cat)"
               class:list={[
-                "scroll-mt-32 rounded-lg border border-edge border-l-[3px] bg-surface-2 p-4 shadow-card",
+                "rail-only scroll-mt-32 rounded-lg border border-edge border-l-[3px] bg-surface-2 p-4 shadow-card",
                 mostUsedIds.length === 0 && "hidden",
               ]}
             >
@@ -257,11 +256,10 @@ const emptyCategory: Category = {
 
             <section
               data-favourites
-              data-rail-only
               id="favourites"
               data-density="compact"
               class:list={[
-                "scroll-mt-32 rounded-lg border border-edge bg-surface-2 p-4 shadow-card",
+                "rail-only scroll-mt-32 rounded-lg border border-edge bg-surface-2 p-4 shadow-card",
                 favouriteCount === 0 && "hidden",
               ]}
             >

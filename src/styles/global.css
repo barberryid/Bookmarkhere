@@ -231,7 +231,7 @@ mark.search-hit {
 }
 
 /* Category rail */
-[data-rail-only] {
+.rail-only {
   display: none !important;
 }
 

@@ -12,6 +12,11 @@ function sectionCount(section: HTMLElement): number {
   return gridFor(section)?.children.length ?? 0;
 }
 
+function showInMainPanel(section: HTMLElement): void {
+  section.classList.remove("rail-only");
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 /**
  * Hide the category links under collapsed collections and rotate their carets.
  * Reads the shared collapse state (by collection name) so the rail and the
@@ -48,7 +53,7 @@ function build(): void {
         "★ Favourites",
         grid?.children.length ?? 0,
         false,
-        () => favourites.scrollIntoView({ behavior: "smooth", block: "start" }),
+        () => showInMainPanel(favourites),
         undefined,
         "favourites",
       ),
@@ -64,7 +69,7 @@ function build(): void {
         "✦ Most Used",
         grid?.children.length ?? 0,
         false,
-        () => mostUsed.scrollIntoView({ behavior: "smooth", block: "start" }),
+        () => showInMainPanel(mostUsed),
         undefined,
         "most-used",
       ),

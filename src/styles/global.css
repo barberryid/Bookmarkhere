@@ -231,6 +231,10 @@ mark.search-hit {
 }
 
 /* Category rail */
+[data-rail-only] {
+  display: none !important;
+}
+
 .rail-link {
   display: flex;
   align-items: center;

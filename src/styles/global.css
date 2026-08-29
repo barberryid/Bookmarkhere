@@ -234,6 +234,9 @@ mark.search-hit {
 .rail-only {
   display: none !important;
 }
+.rail-filtered {
+  display: none !important;
+}
 
 .rail-link {
   display: flex;

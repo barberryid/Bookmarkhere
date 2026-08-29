@@ -24,6 +24,26 @@ function showInMainPanel(section: HTMLElement): void {
   section.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function filterToCollection(name: string): HTMLElement | null {
+  const container = $("[data-sections-container]");
+  if (!container) return null;
+
+  let selected: HTMLElement | null = null;
+  for (const node of Array.from(container.children) as HTMLElement[]) {
+    const matches = node.matches("[data-collection]") && node.dataset.collectionName === name;
+    node.classList.toggle("rail-filtered", !matches);
+    if (matches) selected = node;
+  }
+
+  if (selected && isCollectionCollapsed(name)) toggleCollectionCollapsedByName(name);
+  return selected;
+}
+
+function showCollectionInMainPanel(name: string): void {
+  hideSpecialPanels();
+  filterToCollection(name)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 /**
  * Hide the category links under collapsed collections and rotate their carets.
  * Reads the shared collapse state (by collection name) so the rail and the
@@ -103,6 +123,7 @@ function build(): void {
             true,
             () => {
               hideSpecialPanels();
+              if (name) filterToCollection(name);
               expandSection(section);
               section.scrollIntoView({ behavior: "smooth", block: "start" });
             },
@@ -138,8 +159,8 @@ function build(): void {
 }
 
 /**
- * Collection header in the rail. Clicking it folds the collection in BOTH the
- * rail and the main view (shared state via toggleCollectionCollapsedByName).
+ * Collection headers filter the main board to their subcategories. The main
+ * collection card retains its own collapse control.
  */
 function collectionHeader(name: string, count: number): HTMLElement {
   const button = document.createElement("button");
@@ -167,10 +188,7 @@ function collectionHeader(name: string, count: number): HTMLElement {
   countEl.textContent = String(count);
 
   button.append(caret, dot, nameEl, countEl);
-  button.addEventListener("click", () => {
-    hideSpecialPanels();
-    toggleCollectionCollapsedByName(name);
-  });
+  button.addEventListener("click", () => showCollectionInMainPanel(name));
   return button;
 }
 
